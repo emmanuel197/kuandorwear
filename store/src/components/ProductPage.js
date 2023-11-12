@@ -45,7 +45,7 @@ renderProductDetail() {
         <div className="col-md-6">
           <div className="box-element" id="product-detail-content">
             <h1 id="product-detail-header">{this.state.product.name}</h1>
-            <p id="product-detail-text">A floral, solar and voluptuous interpretation composed by Olivier Polge, Perfumer-Creator for the house of CHANEL.</p>
+            <p id="product-detail-text">{this.state.product.description}</p>
             <p id="price">${this.state.product.price} <del>$199.99</del></p>
             <a id="product-detail-button" href="/">Add to Cart</a>
           </div>
