@@ -56,7 +56,7 @@ renderProductDetail() {
     <div id="product-detail-wrapper">
         <div className="row">
         <div className="col-md-6">
-          <img id="product-detail-img" src={placeHolderImage} alt="Perfume bottle"/>
+          <img id="product-detail-img" src={this.state.product.image} alt="Perfume bottle"/>
         </div>
         <div className="col-md-6">
           <div className="box-element" id="product-detail-content">
