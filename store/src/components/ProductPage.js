@@ -16,21 +16,6 @@ export default class ProductPage extends Component {
     
   }
 
-//   productDetail() {
-//     console.log("run")
-//     const id = this.props.match.params.id;
-//     console.log(id)
-//     fetch(`/api/product/${id}`)
-//       .then(response => {
-//         console.log(response)
-//         return response.json()
-//       })
-//         .then(data => {
-//           console.log(data)
-//           this.setState({ product: data })
-//         });
-    
-// }
 productDetailData() {
   console.log("run")
   const id = this.props.match.params.id;
@@ -45,7 +30,6 @@ productDetailData() {
       }
     })
     .then(data => {
-      console.log(data)
       this.setState({ product: data })
     })
     .catch(error => console.log(error));
