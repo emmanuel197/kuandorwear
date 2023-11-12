@@ -10,13 +10,14 @@ export default class Product extends Component {
 
   
   render() {
+    console.log(this.props.product.image)
     const styles = {
       display: 'inline-block',
       float: 'right'
     }
     return (
       <div className="col-lg-4">
-        <img className="thumbnail" src={placeHolderImage} />
+        <img className="thumbnail" src={this.props.product.image} />
         <div className="box-element product">
             <h6><strong>{this.props.product.name}</strong></h6>
             <hr/>
