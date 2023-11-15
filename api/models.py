@@ -1,10 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
+import random, string
 
 # Create your models here.
 
 
-class Customser(models.Model):
+class Customer(models.Model):
     user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=200, null=False, blank=False)
     email = models.CharField(max_length=200)
@@ -22,3 +23,39 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+    
+def generate_unique_transaction_id():
+    length= 6
+    while True:
+        transaction_id = ''.join(random.choices(string.ascii_uppercase, k=length))
+        if Order.objects.filter(transaction_id=transaction_id).count() == 0:
+            break
+    return transaction_id
+class Order(models.Model):
+    customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.SET_NULL)
+    transaction_id = models.CharField(default=generate_unique_transaction_id, max_length=8, unique=True)
+    date_ordered = models.DateTimeField(auto_now_add=True)
+    complete = models.BooleanField(default=False)
+
+    @property
+    def get_cart_total(self):
+        orderitems = self.orderitem_set.all()
+        total = sum([item.get_total for item in orderitems])
+        return total
+
+    @property
+    def get_cart_items(self):
+        orderitems = self.orderitem_set.all()
+        total = sum([item.quantity for item in orderitems])
+        return total
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=0, null=True, blank=True)
+    date_added = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def get_total(self):
+        total = self.product.price * self.quantity
+        return total
