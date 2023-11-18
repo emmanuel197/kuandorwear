@@ -5,5 +5,7 @@ urlpatterns = [
     path('', index, name="homepage"),
     path('product/<int:id>', index),
     path('cart', index),
-    path('checkout', index)
+    path('checkout', index),
+    path('register', index),
+    path('login', index),
 ]

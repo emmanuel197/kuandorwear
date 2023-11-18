@@ -34,7 +34,7 @@ export default class NavBar extends Component{
             </li>
           </ul>
           <div className="form-inline my-2 my-lg-0">
-            <a href="#" className="btn btn-warning">
+            <a href="/login" className="btn btn-warning">
               Login
             </a>
 

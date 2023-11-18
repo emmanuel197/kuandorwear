@@ -121,7 +121,7 @@ h1,h2,h3,h4,h5,h6{
   #price {
 	font-size: 24px;
   }
-  #product-detail-button {
+  #product-detail-button, #register-submit-button {
 	display: block;
 	width: 100%;
 	padding: 10px;
@@ -193,4 +193,23 @@ h1,h2,h3,h4,h5,h6{
 	top: 44px;
 }
 
+.registration-page-wrapper {
+	display: flex;
+	justify-content: center;
+}
+.register-form-container {
+	display: flex;
+	flex-direction: column;
+	padding: 50px;	
+}
+
+.register-form-input {
+    width: 100%;
+    margin-bottom: 20px;
+    height: 40px;
+    border-radius: 5px;
+    border: 1px solid gray;
+    padding: 5px;
+    font-family: 'Inter', sans-serif;
+}
 

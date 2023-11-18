@@ -2,6 +2,8 @@
     import CartPage from "./CartPage";
     import ProductPage from "./ProductPage";
     import CheckoutPage from "./CheckoutPage";
+    import RegisterPage from "./RegisterPage"
+    import LoginPage from "./LoginPage"
     import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
     import Product from "./Product";
     export default class Homepage extends Component {
@@ -39,7 +41,8 @@
             <Route path="/product/:id" render={(props) => {
                             return <ProductPage {...props} />}} />
             <Route path="/checkout" component={CheckoutPage} />
-            
+            <Route path="/register" component={RegisterPage}/>
+            <Route path="/login" component={LoginPage}/>
             </Switch>
         </BrowserRouter>
         );

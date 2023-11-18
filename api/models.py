@@ -37,6 +37,9 @@ class Order(models.Model):
     date_ordered = models.DateTimeField(auto_now_add=True)
     complete = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.transaction_id
+    
     @property
     def get_cart_total(self):
         orderitems = self.orderitem_set.all()
