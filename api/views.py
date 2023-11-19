@@ -9,6 +9,7 @@ from .forms import CustomUserCreationForm
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 
 class ProductListView(generics.ListAPIView):
@@ -36,8 +37,11 @@ class ProductDetailView(generics.RetrieveAPIView):
 #         product_result = Product.objects.filter
 
 class CreateOrderView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request, *args, **kwargs):
         data = request.data
+        print(data)
+        print(request.user)
         product_id = data.get('product_id')
         product = Product.objects.get(id=product_id)
         customer = Customer.objects.filter(user=request.user).first()

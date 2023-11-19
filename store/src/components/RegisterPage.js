@@ -45,6 +45,7 @@ export default class RegisterPage extends Component {
       })
       .then((data) => {
         console.log(data);
+        this.props.history.push("/login")
         this.setState({ errorMessage: "" });
       })
       .catch((error) => {
@@ -71,6 +72,7 @@ export default class RegisterPage extends Component {
               name="username"
               placeholder="Username"
               onChange={this.handleChange}
+              value={this.state.username}
             />
             <input
               className="register-form-input"
@@ -78,6 +80,7 @@ export default class RegisterPage extends Component {
               name="email"
               placeholder="Email"
               onChange={this.handleChange}
+              value={this.state.email}
             />
             <input
               className="register-form-input"
@@ -85,6 +88,7 @@ export default class RegisterPage extends Component {
               name="password1"
               placeholder="Password"
               onChange={this.handleChange}
+              value={this.state.password1}
             />
             <input
               className="register-form-input"
@@ -92,6 +96,7 @@ export default class RegisterPage extends Component {
               name="password2"
               placeholder="Confirm Password"
               onChange={this.handleChange}
+              value={this.state.password2}
             />
             <input
               className="register-form-input"
@@ -99,6 +104,7 @@ export default class RegisterPage extends Component {
               name="name"
               placeholder="Name"
               onChange={this.handleChange}
+              value={this.state.name}
             />
             <button id="register-submit-button" onClick={this.register}>Register</button>
             <p className="message">

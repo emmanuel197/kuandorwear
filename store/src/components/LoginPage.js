@@ -22,8 +22,8 @@ export default class LoginPage extends Component {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
       body: JSON.stringify({
-        username: this.state.username,
-        password: this.state.password
+        "username": this.state.username,
+        "password": this.state.password
       }),
     })
       .then((response) => {
@@ -34,6 +34,7 @@ export default class LoginPage extends Component {
       })
       .then((data) => {
         console.log(data);
+        this.props.history.push("/")
         this.setState({ errorMessage: "" });
       })
       .catch((error) => {
@@ -60,6 +61,7 @@ export default class LoginPage extends Component {
               name="username"
               placeholder="Username"
               onChange={this.handleChange}
+              value={this.state.username}
             />
             <input
               className="register-form-input"
@@ -67,6 +69,7 @@ export default class LoginPage extends Component {
               name="password"
               placeholder="Password"
               onChange={this.handleChange}
+              value={this.state.password}
             />
             
             <button id="register-submit-button" onClick={this.login}>Sign In</button>
