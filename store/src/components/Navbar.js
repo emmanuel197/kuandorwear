@@ -6,9 +6,21 @@ import cartIcon from "../../static/images/cart.png"
 export default class NavBar extends Component{
   constructor(props) {
     super(props);
+    this.state = {
+      total_items: 0
+    }
     this.logOutHandler = this.logOutHandler.bind(this)
   }
-
+  componentDidMount() {
+    fetch('/api/cart-data')
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+      console.log(data.total_items)
+      this.setState({total_items: data.total_items})
+    })
+  }
   logOutHandler() {
     const csrftoken = document.cookie
       .split("; ")
@@ -69,7 +81,7 @@ export default class NavBar extends Component{
             <a href="/cart">
               <img id="cart-icon" src={cartIcon} />
             </a>
-            <p id="cart-total">1</p>
+            <p id="cart-total">{this.state.total_items}</p>
           </div>
         </div>
       </nav>
