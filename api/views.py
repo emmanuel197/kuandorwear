@@ -9,7 +9,7 @@ from .forms import CustomUserCreationForm
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
-from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import logout
 # Create your views here.
 
 class ProductListView(generics.ListAPIView):
@@ -36,38 +36,38 @@ class ProductDetailView(generics.RetrieveAPIView):
 #         product =request.data.get('product')
 #         product_result = Product.objects.filter
 
-class CreateOrderView(generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+
+class CreateOrUpdateOrderView(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
         print(data)
-        print(request.user)
         product_id = data.get('product_id')
         product = Product.objects.get(id=product_id)
-        customer = Customer.objects.filter(user=request.user).first()
-        order = Order.objects.filter(customer=customer, complete=False).first()
-        if not order:
-            order = Order.objects.create(
-                customer=request.user.customer,
-                complete=False
-            )
-        
-        order_item = OrderItem.objects.filter(order=order, product=product).first()
+        print(request.user.is_authenticated)
+        if request.user.is_authenticated:
+            customer = Customer.objects.filter(user=request.user).first()
+        else:
+            print(self.request.session.exists(self.request.session.session_key))
+            if not self.request.session.exists(self.request.session.session_key):
+                self.request.session.create()
+            print(self.request.session.session_key)
+            customer, created = Customer.objects.get_or_create(customer_id=self.request.session.session_key)
 
-        if order_item:
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        
+        order_item, created = OrderItem.objects.get_or_create(
+            order=order, 
+            product=product,
+            quantity=1
+        )
+
+        if not created:
             order_item.quantity += 1
             order_item.save()
-        # If not, create a new order item
-        else:
-            OrderItem.objects.create(
-                product=product,
-                order=order,
-                quantity=1
-            )
-        
-        
 
         return Response({'message': 'Order created successfully'}, status=status.HTTP_200_OK)
+
+
     
 # class CartDataView(generics.APIView):
 #     def get(self, request, format=None):
@@ -107,7 +107,66 @@ class LoginView(APIView):
 
         if user is not None:
             # A backend authenticated the credentials
-            return Response({'message': 'User logged in successfully'}, status=status.HTTP_200_OK)
+            return Response({'logged_in': user.is_authenticated}, status=status.HTTP_200_OK)
         else:
             # No backend authenticated the credentials
             return Response({'error': 'Invalid username or password'}, status=status.HTTP_400_BAD_REQUEST)
+        
+class LogoutView(APIView):
+    def post(self, request):
+        logout(request)
+        print(request.user.is_authenticated)
+        return Response({'message': 'User logged out successfully'}, status=status.HTTP_200_OK)
+
+class CartDataView(APIView):
+    def get(self, request, *args, **kwargs):
+        # Assuming the customer's order is passed in the request
+
+        print(request.user.is_authenticated)
+        customer = Customer.objects.filter(customer_id=self.request.session.session_key).first()
+        print(customer)
+        order = Order.objects.filter(customer=customer, complete=False)[0]
+        items = order.orderitem_set.all()
+
+        item_list = []
+        for item in items:
+            item_list.append({
+                'product': item.product.name,
+                'price': item.product.price,
+                'image': item.product.image.url,
+                'quantity': item.quantity,
+                'total': item.get_total
+            })
+
+        cart_data = {
+            'total_items': order.get_cart_items,
+            'total_cost': order.get_cart_total,
+            'items': item_list
+        }
+
+        return Response(cart_data)
+
+class updateCartView(APIView):
+    def post(self, request, format=None):
+        data = request.data
+        product_name = data.get('product_name')
+        action = data.get('action')
+        product = Product.objects.get(name=product_name)
+
+        if request.user.is_authenticated:
+            customer = Customer.objects.filter(user=request.user).first()
+        else:
+            customer = Customer.objects.filter(customer_id=self.request.session.session_key).first()
+        order = Order.objects.filter(customer=customer, complete=False).first()
+        order_item = OrderItem.objects.filter(order=order, product=product).first()
+
+        if 'add' == action:
+            order_item.quantity += 1
+            order_item.save()
+        elif 'remove' == action:
+            order_item.quantity -= 1
+            if order_item.quantity <= 0:
+                order_item.delete()
+            else:
+                order_item.save()
+        return Response({'message': 'Cart updated successfully'}, status=status.HTTP_200_OK)

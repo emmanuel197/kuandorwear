@@ -1,16 +1,75 @@
 import React, { Component } from "react";
-import placeHolderImage from "../../static/images/placeholder.png";
 import arrowUp from "../../static/images/arrow-up.png";
 import arrowDown from "../../static/images/arrow-down.png";
+import CartProduct from "./CartProduct";
 export default class CartPage extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      total_items: 0,
+      total_cost: 0,
+      item_list: [],
+    };
+    this.addOrRemoveItemHandler = this.addOrRemoveItemHandler.bind(this);
   }
+
+  addOrRemoveItemHandler(action, product_name) {
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "action": action,
+        "product_name": product_name
+      })
+    }
+    fetch("/api/update-cart/", requestOptions)
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+      console.log(data)
+      if (data.message === 'Cart updated successfully') {
+        this.setState(prevState => ({
+          item_list: prevState.item_list.filter(item => item.product !== product_name || item.quantity !== 0)
+        }));
+      }
+      window.location.replace("/cart")
+    })
+  }
+
+  
+  componentDidMount() {
+    fetch("/api/cart-data")
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+        this.setState({
+          total_items: data.total_items,
+          total_cost: data.total_cost,
+          item_list: data.items,
+        });
+      });
+  }
+
   render() {
     const styles = {
       float: "right",
       margin: "5px",
     };
+    const cartProducts = this.state.item_list.map((item) => (
+      <CartProduct
+        name={item.product}
+        price={item.price}
+        image={item.image}
+        quantity={item.quantity}
+        total={item.total}
+        addOrRemoveItemHandler={(action, product_name) => this.addOrRemoveItemHandler(action, product_name)}
+      />
+    ));
     return (
       <div className="col-lg-12">
         <div className="box-element">
@@ -23,12 +82,12 @@ export default class CartPage extends Component {
             <tr>
               <th>
                 <h5>
-                  Items: <strong>3</strong>
+                  Items: <strong>{this.state.total_items}</strong>
                 </h5>
               </th>
               <th>
                 <h5>
-                  Total:<strong> $42</strong>
+                  Total:<strong> $ {this.state.total_cost}</strong>
                 </h5>
               </th>
               <th>
@@ -57,27 +116,7 @@ export default class CartPage extends Component {
               <strong>Total</strong>
             </div>
           </div>
-          <div className="cart-row">
-            <div style={{ flex: "2" }}>
-              <img className="row-image" src={placeHolderImage} />
-            </div>
-            <div style={{ flex: "2" }}>
-              <p>Product 1</p>
-            </div>
-            <div style={{ flex: "1" }}>
-              <p>$20</p>
-            </div>
-            <div style={{ flex: "1" }}>
-              <p className="quantity">2</p>
-              <div className="quantity">
-                <img className="chg-quantity" src={arrowUp} />
-                <img className="chg-quantity" src={arrowDown} />
-              </div>
-            </div>
-            <div style={{ flex: "1" }}>
-              <p>$32</p>
-            </div>
-          </div>
+          {cartProducts}
         </div>
       </div>
     );

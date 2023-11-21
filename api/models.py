@@ -6,17 +6,21 @@ import random, string
 
 
 class Customer(models.Model):
+    customer_id = models.CharField(max_length=200, null=True, blank=True)
     user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
-    name = models.CharField(max_length=200, null=False, blank=False)
-    email = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, null=True, blank=True)
+    email = models.EmailField(max_length=200, null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        if self.customer_id:
+            return self.customer_id
+        else:
+            return self.name
     
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
-    price = models.FloatField()
+    price = models.DecimalField(max_digits=7, decimal_places=2)
     digital = models.BooleanField(default=False, null=True, blank=True)
     image = models.ImageField(upload_to='images/' ,null=True, blank=True)
     description = models.TextField(max_length=1000, null=True, blank=True)

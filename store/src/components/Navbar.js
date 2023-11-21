@@ -6,6 +6,32 @@ import cartIcon from "../../static/images/cart.png"
 export default class NavBar extends Component{
   constructor(props) {
     super(props);
+    this.logOutHandler = this.logOutHandler.bind(this)
+  }
+
+  logOutHandler() {
+    const csrftoken = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("csrftoken"))
+      .split("=")[1];
+
+    fetch('/api/logout/', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          "X-CSRFToken": csrftoken
+      }
+      })
+    .then(response => response.json())
+    .then(data => {
+          console.log(data);
+          this.props.logToggler()
+          // You can add more code here to handle the response
+      })
+      .catch((error) => {
+          console.error('Error:', error);
+      });
+
   }
   render() {
     return (
@@ -34,10 +60,12 @@ export default class NavBar extends Component{
             </li>
           </ul>
           <div className="form-inline my-2 my-lg-0">
-            <a href="/login" className="btn btn-warning">
+            {this.props.logged_in ? <a href="/" className="btn btn-warning" onClick={this.logOutHandler()}>
+              Logout
+            </a> : <a href="/login" className="btn btn-warning">
               Login
-            </a>
-
+            </a> 
+            }
             <a href="/cart">
               <img id="cart-icon" src={cartIcon} />
             </a>

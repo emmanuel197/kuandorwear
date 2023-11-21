@@ -42,7 +42,8 @@
                             return <ProductPage {...props} />}} />
             <Route path="/checkout" component={CheckoutPage} />
             <Route path="/register" component={RegisterPage}/>
-            <Route path="/login" component={LoginPage}/>
+            <Route path="/login" render={(props) => {
+                return <LoginPage {...props} logged_in={this.props.logged_in} logToggler={this.props.logToggler}/>}} />
             </Switch>
         </BrowserRouter>
         );

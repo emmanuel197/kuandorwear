@@ -34,6 +34,8 @@ export default class LoginPage extends Component {
       })
       .then((data) => {
         console.log(data);
+        this.props.logToggler()
+        console.log(this.props.logged_in)
         this.props.history.push("/")
         this.setState({ errorMessage: "" });
       })
