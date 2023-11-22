@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import placeHolderImage from "../../static/images/placeholder.png";
+import CheckoutProduct from "./CheckoutProduct";
 export default class CheckoutPage extends Component {
   constructor(props) {
     super(props);
@@ -10,14 +11,30 @@ export default class CheckoutPage extends Component {
       address: "",
       city: "",
       state: "",
-      zipcode: ""
+      zipcode: "",
+      total_items: 0,
+      total_cost: 0,
+      item_list: []
     };
   
 
     this.handleChange = this.handleChange.bind(this);
     // this.handleSubmit = this.handleSubmit.bind(this)
   }
-
+  componentDidMount() {
+    fetch("/api/cart-data")
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+        this.setState({
+          total_items: data.total_items,
+          total_cost: data.total_cost,
+          item_list: data.items,
+        });
+      });
+  }
   handleChange(event) {
     const { name, value } = event.target;
     this.setState((prevFormData) => ({
@@ -43,6 +60,14 @@ export default class CheckoutPage extends Component {
   //   .then(response )
   // }
   render() {
+    const checkoutProducts = this.state.item_list.map((item) => (
+      <CheckoutProduct
+      name={item.product}
+      image={item.image}
+      quantity={item.quantity}
+      total={item.total}
+      />
+    ))
     return (
       <div className="row">
         <div className="col-lg-6">
@@ -128,25 +153,9 @@ export default class CheckoutPage extends Component {
             <hr />
             <h3>Order Summary</h3>
             <hr />
-            <div className="cart-row">
-              <div style={{ flex: "2" }}>
-                <img
-                  className="row-image"
-                  src={placeHolderImage}
-                />
-              </div>
-              <div style={{ flex: "2" }}>
-                <p>Product 1</p>
-              </div>
-              <div style={{ flex: "1" }}>
-                <p>$20.00</p>
-              </div>
-              <div style={{ flex: "1" }}>
-                <p>x2</p>
-              </div>
-            </div>
-            <h5>Items: 2</h5>
-            <h5>Total: $40</h5>
+            {checkoutProducts}
+            <h5>Items: {this.state.total_items}</h5>
+            <h5>Total: ${this.state.total_cost}</h5>
           </div>
         </div>
       </div>
