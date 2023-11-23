@@ -55,6 +55,14 @@ class Order(models.Model):
         orderitems = self.orderitem_set.all()
         total = sum([item.quantity for item in orderitems])
         return total
+    
+    @property
+    def shipping(self):
+        shipping = False
+        all_digital = all([item.product.digital for item in self.orderitem_set.all()])
+        if not all_digital:
+            shipping = True
+        return shipping
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
@@ -66,3 +74,12 @@ class OrderItem(models.Model):
     def get_total(self):
         total = self.product.price * self.quantity
         return total
+
+class ShippingAddress(models.Model): 
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE) 
+    order = models.ForeignKey(Order, on_delete=models.CASCADE) 
+    address = models.CharField(max_length=200) 
+    city = models.CharField(max_length=200) 
+    state = models.CharField(max_length=200) 
+    zipcode = models.CharField(max_length=200) 
+    date_added = models.DateTimeField(auto_now_add=True)
