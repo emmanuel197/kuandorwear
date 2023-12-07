@@ -26,3 +26,4 @@ store/models.py
 api/__pycache__
 api/migrations
 store/src/index.js
+store/static/frontend/main.js.LICENSE.txt

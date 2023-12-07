@@ -30,15 +30,6 @@ class ProductDetailView(generics.RetrieveAPIView):
             return Response(serializer.data)
         except Product.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
-# class CreateOrderView():
-#     def post(self, request, format=None):
-#         order = Order()
-#         order.save()
-        
-#         product =request.data.get('product')
-#         product_result = Product.objects.filter
-
 
 class CreateOrUpdateOrderView(APIView):
     def post(self, request, *args, **kwargs):
@@ -71,9 +62,6 @@ class CreateOrUpdateOrderView(APIView):
 
 
     
-# class CartDataView(generics.APIView):
-#     def get(self, request, format=None):
-#         number_of_items = 
 
 
 class RegisterView(APIView):
@@ -152,14 +140,28 @@ class CartDataView(APIView):
         print(request.user.is_authenticated)
         if not request.user.is_authenticated:
             print(self.request.session.session_key)
-            customer = Customer.objects.filter(customer_id=self.request.session.session_key).first()
+            if not self.request.session.exists(self.request.session.session_key):
+                self.request.session.create()
+            customer, customer_created = Customer.objects.get_or_create(customer_id=self.request.session.session_key)
             anonymous_user = True
         else:
             customer = Customer.objects.filter(user=request.user).first()
         
         
-        order = Order.objects.filter(customer=customer, complete=False)[0]
+        order, order_created = Order.objects.get_or_create(customer=customer, complete=False)
+        print(order_created)
         print(order)
+
+        if order.orderitem_set.all() is None:
+            cart_data = {
+            'total_items': 0,
+            'total_cost': 0,
+            'items': [],
+            'shipping': False,
+            'anonymous_user': anonymous_user
+        }
+            return Response(cart_data)
+        
         items = order.orderitem_set.all()
 
         item_list = []
