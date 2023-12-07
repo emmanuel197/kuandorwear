@@ -39,7 +39,10 @@ export default class Product extends Component {
       }
       return response.json();
     })
-    .then(data => console.log(data))
+    .then(data => {
+      console.log(data)
+      this.props.updatedToggler()
+    })
     .catch(error => console.error(`Fetch Error =\n`, error));
   }
   

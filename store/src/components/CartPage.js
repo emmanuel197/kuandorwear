@@ -14,11 +14,19 @@ export default class CartPage extends Component {
   }
 
   addOrRemoveItemHandler(action, product_name) {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (this.props.logged_in) {
+      const csrftoken = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("csrftoken"))
+        .split("=")[1];
+      headers['X-CSRFToken'] = csrftoken;
+    }
     const requestOptions = {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: headers,
       body: JSON.stringify({
         "action": action,
         "product_name": product_name
@@ -40,7 +48,7 @@ export default class CartPage extends Component {
   }
 
   
-  componentDidMount() {
+  componentDidMount() { 
     fetch("/api/cart-data")
       .then((response) => {
         return response.json();

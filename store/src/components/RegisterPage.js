@@ -9,26 +9,29 @@ export default class RegisterPage extends Component {
       password2: "",
       name: "",
       email: "",
-      errorMessage: "",
+      formErrors: {},
     };
     this.register = this.register.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
   register() {
-    // Confirm password
-    if (this.state.password1 !== this.state.password2) {
-      this.setState({ errorMessage: "Passwords do not match" });
-      return;
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    if (this.props.logged_in) {
+      let csrftoken;
+      const csrfCookie = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("csrftoken"));
+      if (csrfCookie) {
+        csrftoken = csrfCookie.split("=")[1];
+      }
+      headers["X-CSRFToken"] = csrftoken;
     }
-    const csrftoken = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("csrftoken"))
-      .split("=")[1];
-
     fetch("/api/register/", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+      headers: headers,
       body: JSON.stringify({
         username: this.state.username,
         password1: this.state.password1,
@@ -37,20 +40,22 @@ export default class RegisterPage extends Component {
         name: this.state.name,
       }),
     })
-      .then((response) => {
+      .then(async (response) => {
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          const errorData = await response.json(); // Assuming error response contains JSON data
+          throw errorData; // Throw the errorData
+        } else {
+          return response.json();
         }
-        return response.json();
       })
       .then((data) => {
         console.log(data);
-        this.props.history.push("/login")
-        this.setState({ errorMessage: "" });
+        this.props.history.push("/login");
+        this.setState({ formErrors: {} });
       })
-      .catch((error) => {
-        console.error(`Fetch Error =\n`, error);
-        this.setState({ errorMessage: "An error occurred" });
+      .catch((errorData) => {
+        console.log(errorData.form_errors);
+        this.setState({ formErrors: errorData.form_errors });
       });
   }
 
@@ -60,8 +65,8 @@ export default class RegisterPage extends Component {
 
   render() {
     const styles = {
-        width: "600px"
-    }
+      width: "600px",
+    };
     return (
       <div className="registration-page-wrapper">
         <div className="box-element" style={styles}>
@@ -106,11 +111,18 @@ export default class RegisterPage extends Component {
               onChange={this.handleChange}
               value={this.state.name}
             />
-            <button id="register-submit-button" onClick={this.register}>Register</button>
+            <button id="register-submit-button" onClick={this.register}>
+              Register
+            </button>
             <p className="message">
               Already registered? <a href="/login">Sign In</a>
             </p>
-            {this.state.errorMessage && <p>{this.state.errorMessage}</p>}
+            {this.state.formErrors &&
+              Object.keys(this.state.formErrors).map((key, i) => (
+                <p key={i}>
+                  {this.state.formErrors[key]}
+                </p>
+              ))}
           </div>
         </div>
       </div>

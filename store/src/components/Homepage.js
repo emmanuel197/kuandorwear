@@ -16,7 +16,20 @@
     }
 
     componentDidMount() {
-        fetch("/api/products")
+        const headers = {
+            'Content-Type': 'application/json',
+          };
+          if (this.props.logged_in) {
+            const csrftoken = document.cookie
+              .split("; ")
+              .find((row) => row.startsWith("csrftoken"))
+              .split("=")[1];
+            headers['X-CSRFToken'] = csrftoken;
+          }
+        fetch("/api/products", {
+            method: "GET",
+            headers: headers
+        })
         .then((response) => response.json())
         .then((data) => this.setState({ products: data }));
     }
@@ -25,7 +38,7 @@
         return (
         <div className="row">
             {this.state.products.map((product) => (
-            <Product key={product.id} product={product} />
+            <Product key={product.id} product={product} cart_total_updated={this.props.cart_total_updated} updatedToggler={this.props.updatedToggler}/>
             ))}
         </div>
         );
@@ -37,13 +50,20 @@
             <Route exact path="/">
                 {this.renderHomePage()}
             </Route>
-            <Route path="/cart" component={CartPage} />
+            <Route path="/cart" render={(props) => <CartPage {...props} logged_in={this.props.logged_in}/>}/>
             <Route path="/product/:id" render={(props) => {
                             return <ProductPage {...props} />}} />
-            <Route path="/checkout" component={CheckoutPage} />
+            <Route path="/checkout" render={(props) => <CheckoutPage {...props} logged_in={this.props.logged_in}/>} />
             <Route path="/register" component={RegisterPage}/>
             <Route path="/login" render={(props) => {
-                return <LoginPage {...props} logged_in={this.props.logged_in} logToggler={this.props.logToggler}/>}} />
+                if (this.props.logged_in) {
+                    // If user is already logged in, redirect to the homepage
+                    return <Redirect to="/" />;
+                } else {
+                    // Render the login page
+                    return <LoginPage {...props} logged_in={this.props.logged_in} logToggler={this.props.logToggler} />;
+                }
+            }} />
             </Switch>
         </BrowserRouter>
         );

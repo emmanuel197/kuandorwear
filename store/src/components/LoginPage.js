@@ -12,36 +12,47 @@ export default class LoginPage extends Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
-  login() {
-    const csrftoken = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("csrftoken"))
-      .split("=")[1];
+  
 
+  login() {
+    
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    if (this.props.logged_in) {
+      let csrftoken;
+      const csrfCookie = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("csrftoken"));
+      if (csrfCookie) {
+        csrftoken = csrfCookie.split("=")[1];
+      }
+      headers["X-CSRFToken"] = csrftoken;
+    }
     fetch("/api/login/", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+      headers: headers,
       body: JSON.stringify({
         "username": this.state.username,
         "password": this.state.password
       }),
     })
-      .then((response) => {
+      .then(async (response) => {
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          const errorData = await response.json();
+          throw errorData
+        } else {
+          return response.json();
         }
-        return response.json();
       })
       .then((data) => {
         console.log(data);
-        this.props.logToggler()
-        console.log(this.props.logged_in)
         this.props.history.push("/")
         this.setState({ errorMessage: "" });
       })
-      .catch((error) => {
-        console.error(`Fetch Error =\n`, error);
-        this.setState({ errorMessage: "An error occurred" });
+      .catch((errorData) => {
+        console.log(errorData);
+        this.setState({ errorMessage: errorData.error});
       });
   }
 

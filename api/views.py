@@ -1,6 +1,6 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .serializers import ProductSerializer
-from .models import Product, Order, OrderItem, Customer
+from .models import Product, Order, OrderItem, Customer, ShippingAddress
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics, status
@@ -9,7 +9,10 @@ from .forms import CustomUserCreationForm
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
-from django.contrib.auth import logout
+from django.contrib.auth import login, logout
+from django.http import JsonResponse
+# from django.contrib.auth.decorators import login_required
+
 # Create your views here.
 
 class ProductListView(generics.ListAPIView):
@@ -43,7 +46,6 @@ class CreateOrUpdateOrderView(APIView):
         print(data)
         product_id = data.get('product_id')
         product = Product.objects.get(id=product_id)
-        print(request.user.is_authenticated)
         if request.user.is_authenticated:
             customer = Customer.objects.filter(user=request.user).first()
         else:
@@ -58,7 +60,7 @@ class CreateOrUpdateOrderView(APIView):
         order_item, created = OrderItem.objects.get_or_create(
             order=order, 
             product=product,
-            quantity=1
+            defaults={'quantity': 1}
         )
 
         if not created:
@@ -91,21 +93,41 @@ class RegisterView(APIView):
                 )
 
             user = form.save()
-            Customer.objects.create(user=user, email=email, name=request.data.get('name'))
+            customer_qs = Customer.objects.filter(customer_id=request.session.session_key)
+
+            if customer_qs.exists():
+                # If a Customer with the same customer_id exists, update its details with registration info
+                existing_customer = customer_qs.first()
+                existing_customer.user = user
+                existing_customer.name = request.data.get('name')
+                existing_customer.email = email
+                existing_customer.save()
+            # Check if there is a stored URL in the session
+            else:
+                # If no Customer with the same customer_id exists, create a new one
+                Customer.objects.create(
+                    user=user,
+                    name=request.data.get('name'),
+                    email=email
+                )
             return Response({'message': 'User registered successfully'}, status=status.HTTP_201_CREATED)
         else:
-            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+           form_errors = {field: form.errors[field][0] for field in form.errors}
+           return JsonResponse({'error': 'Form validation failed', 'form_errors': form_errors}, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
     def post(self, request):
         username = request.data.get('username')
-        print(username)
         password = request.data.get('password')
-        print(password)
-        user = authenticate(username=username, password=password)
-        print(user)
-
+        user = authenticate(request, username=username, password=password)
+        
+        
         if user is not None:
+            login(request, user)
+            redirect_url = request.session.get('redirect_url', '/')
+            
+            # Clear the stored URL in the session
+            request.session.pop('redirect_url', None)
             # A backend authenticated the credentials
             return Response({'logged_in': user.is_authenticated}, status=status.HTTP_200_OK)
         else:
@@ -118,14 +140,26 @@ class LogoutView(APIView):
         print(request.user.is_authenticated)
         return Response({'message': 'User logged out successfully'}, status=status.HTTP_200_OK)
 
+class AuthCheck(APIView):
+    def get(self, request):
+        if request.user.is_authenticated:
+            return Response({'logged_in': request.user.is_authenticated}, status=status.HTTP_200_OK)
+        return Response({'bad request': 'user not logged in'}, status=status.HTTP_400_BAD_REQUEST)
 class CartDataView(APIView):
     def get(self, request, *args, **kwargs):
         # Assuming the customer's order is passed in the request
-
+        anonymous_user = False
         print(request.user.is_authenticated)
-        customer = Customer.objects.filter(customer_id=self.request.session.session_key).first()
-        print(customer)
+        if not request.user.is_authenticated:
+            print(self.request.session.session_key)
+            customer = Customer.objects.filter(customer_id=self.request.session.session_key).first()
+            anonymous_user = True
+        else:
+            customer = Customer.objects.filter(user=request.user).first()
+        
+        
         order = Order.objects.filter(customer=customer, complete=False)[0]
+        print(order)
         items = order.orderitem_set.all()
 
         item_list = []
@@ -141,9 +175,12 @@ class CartDataView(APIView):
         cart_data = {
             'total_items': order.get_cart_items,
             'total_cost': order.get_cart_total,
-            'items': item_list
+            'items': item_list,
+            'shipping': order.shipping,
+            'anonymous_user': anonymous_user
         }
 
+        # print(anonymous_user)
         return Response(cart_data)
 
 class updateCartView(APIView):
@@ -170,3 +207,55 @@ class updateCartView(APIView):
             else:
                 order_item.save()
         return Response({'message': 'Cart updated successfully'}, status=status.HTTP_200_OK)
+    
+
+class ProcessOrderView(APIView):
+
+    def post(self, request, format=None):
+        if not request.user.is_authenticated:
+            # Redirect unauthenticated users to the registration page
+            return Response({"error": "User not authenticated", "redirect": "/register"}, status=status.HTTP_401_UNAUTHORIZED)
+         
+         
+        user_info = request.data.get('user_info')
+        shipping_info = request.data.get('shipping_info')
+        total = request.data.get('total')
+        name = user_info['name']
+        email = user_info['email']
+
+        print(request.user)
+        
+        # Check if the user is authenticated
+        if not request.user.is_authenticated:
+            customer, created = Customer.objects.get_or_create(customer_id=self.request.session.session_key)
+            customer.name = name
+            customer.email = email
+            customer.save()
+            order, created = Order.objects.get_or_create(customer=customer)
+        else:
+            customer = request.user.customer
+            order, created = Order.objects.get_or_create(customer=customer)
+
+        # Check if the user has the necessary permissions
+        # In this example, we'll assume that only the customer who placed the order or a superuser can process it
+        if request.user != customer.user and not request.user.is_superuser:
+            return Response({"error": "You do not have permission to process this order"}, status=status.HTTP_403_FORBIDDEN)
+
+        # Add your order processing logic here
+
+        # For example, you might update the order's status to 'processed'
+        if total == order.get_cart_total:
+            order.complete = True
+            order.save()
+            print(order)
+        if order.shipping == True:
+            ShippingAddress.objects.create(
+            customer=customer,
+            order=order,
+            address=shipping_info['address'],
+            city=shipping_info['city'],
+            state=shipping_info['state'],
+            zipcode=shipping_info['zipcode'],
+            )
+
+        return Response({"message": "Order processed successfully"}, status=status.HTTP_200_OK)
