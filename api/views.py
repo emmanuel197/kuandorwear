@@ -11,6 +11,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
 from django.contrib.auth import login, logout
 from django.http import JsonResponse
+from django.db import transaction
 # from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -43,7 +44,8 @@ class CreateOrUpdateOrderView(APIView):
             print(self.request.session.exists(self.request.session.session_key))
             if not self.request.session.exists(self.request.session.session_key):
                 self.request.session.create()
-            print(self.request.session.session_key)
+            
+            
             customer, created = Customer.objects.get_or_create(customer_id=self.request.session.session_key)
 
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
@@ -81,7 +83,7 @@ class RegisterView(APIView):
                 )
 
             user = form.save()
-            customer_qs = Customer.objects.filter(customer_id=request.session.session_key)
+            customer_qs = Customer.objects.filter(customer_id=self.request.session.session_key)
 
             if customer_qs.exists():
                 # If a Customer with the same customer_id exists, update its details with registration info
@@ -103,24 +105,54 @@ class RegisterView(APIView):
            form_errors = {field: form.errors[field][0] for field in form.errors}
            return JsonResponse({'error': 'Form validation failed', 'form_errors': form_errors}, status=status.HTTP_400_BAD_REQUEST)
 
+
+
 class LoginView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
+        anonymous_session_key = self.request.session.session_key
         user = authenticate(request, username=username, password=password)
-        
         
         if user is not None:
             login(request, user)
+            
+            # Check if there is an existing session with a cart for the anonymous user
+            anonymous_customer = Customer.objects.filter(customer_id=anonymous_session_key).first()
+            
+            if anonymous_customer is not None:
+                with transaction.atomic():
+                    # Transfer items from the anonymous user's cart to the logged-in user's cart
+                    anonymous_order = Order.objects.filter(customer=anonymous_customer, complete=False).first()
+                    if anonymous_order is not None:
+                        logged_in_customer = Customer.objects.filter(user=user).first()
+                        logged_in_order, created = Order.objects.get_or_create(customer=logged_in_customer, complete=False)
+                        
+                        for item in anonymous_order.orderitem_set.all():
+                            # Check if the same product is already in the logged-in user's cart
+                            existing_item = logged_in_order.orderitem_set.filter(product=item.product).first()
+                            if existing_item:
+                                existing_item.quantity += item.quantity
+                                existing_item.save()
+                            else:
+                                item.order = logged_in_order
+                                item.save()
+                        
+                        # Delete the anonymous user's cart
+                        anonymous_order.delete()
+                        anonymous_customer.delete()
+
             redirect_url = request.session.get('redirect_url', '/')
             
             # Clear the stored URL in the session
             request.session.pop('redirect_url', None)
+            
             # A backend authenticated the credentials
             return Response({'logged_in': user.is_authenticated}, status=status.HTTP_200_OK)
         else:
             # No backend authenticated the credentials
             return Response({'error': 'Invalid username or password'}, status=status.HTTP_400_BAD_REQUEST)
+
         
 class LogoutView(APIView):
     def post(self, request):
@@ -137,22 +169,23 @@ class CartDataView(APIView):
     def get(self, request, *args, **kwargs):
         # Assuming the customer's order is passed in the request
         anonymous_user = False
-        print(request.user.is_authenticated)
+        # print(request.user.is_authenticated)
         if not request.user.is_authenticated:
-            print(self.request.session.session_key)
-            if not self.request.session.exists(self.request.session.session_key):
-                self.request.session.create()
-            customer, customer_created = Customer.objects.get_or_create(customer_id=self.request.session.session_key)
+            if not request.session.exists(request.session.session_key):
+                request.session.create()
+            
+            customer, customer_created = Customer.objects.get_or_create(customer_id=request.session.session_key)
             anonymous_user = True
         else:
             customer = Customer.objects.filter(user=request.user).first()
         
         
         order, order_created = Order.objects.get_or_create(customer=customer, complete=False)
-        print(order_created)
-        print(order)
+        # print(order_created)
+        print(f'session_key_cart_data: {request.session.session_key}')
+        # print(order)
 
-        if order.orderitem_set.all() is None:
+        if not order.orderitem_set.exists():
             cart_data = {
             'total_items': 0,
             'total_cost': 0,

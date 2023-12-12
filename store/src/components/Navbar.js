@@ -30,7 +30,6 @@ export default class NavBar extends Component{
       return response.json();
     })
     .then((data) => {
-      console.log(data.total_items)
       this.setState({totalItems: data.total_items})
     })
   }
@@ -38,14 +37,15 @@ export default class NavBar extends Component{
   componentDidMount() {
     this.fetchData()
   }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.cart_total_updated == true) {
-      this.fetchData()
-      this.props.updatedToggler()}
-    
-
+  componentDidUpdate() {
+    // Check if the 'logged_in' prop has changed
+    if (this.props.cart_total_updated) {
+      console.log('yeah')
+      this.fetchData();
+      this.props.updatedToggler();
+    }
   }
+ 
 
   logOutHandler() {
     const headers = {
@@ -114,7 +114,7 @@ export default class NavBar extends Component{
             <a href="/cart">
               <img id="cart-icon" src={cartIcon} />
             </a>
-            <p id="cart-total">{this.state.totalItems}</p>
+            <p id="cart-total">{this.props.logged_in ? this.state.totalItems : 0}</p>
           </div>
         </div>
       </nav>

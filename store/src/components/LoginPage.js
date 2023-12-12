@@ -15,7 +15,6 @@ export default class LoginPage extends Component {
   
 
   login() {
-    
     const headers = {
       "Content-Type": "application/json",
     };

@@ -15,7 +15,36 @@ export default class ProductPage extends Component {
     this.productDetailData()
     
   }
-
+  handleOrderedItem(product_id) {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (this.props.logged_in) {
+      const csrftoken = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("csrftoken"))
+        .split("=")[1];
+      headers['X-CSRFToken'] = csrftoken;
+    }
+    const requestOptions = {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify({"product_id": product_id})
+    }
+    fetch('/api/create-order/', requestOptions)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log(data)
+      this.props.updatedToggler()
+    })
+    .catch(error => console.error(`Fetch Error =\n`, error));
+  }
+  
 productDetailData() {
   console.log("run")
   const id = this.props.match.params.id;
@@ -47,7 +76,10 @@ renderProductDetail() {
             <h1 id="product-detail-header">{this.state.product.name}</h1>
             <p id="product-detail-text">{this.state.product.description}</p>
             <p id="price">${this.state.product.price} <del>$199.99</del></p>
-            <a id="product-detail-button" href="/">Add to Cart</a>
+           
+            <a id="product-detail-button" onClick={() => {
+              this.handleOrderedItem(this.state.product.id)}}>Add to Cart</a>
+            
           </div>
         </div>
       </div> 
