@@ -13,6 +13,9 @@ export default class Homepage extends Component {
     this.renderHomePage = this.renderHomePage.bind(this);
     this.state = {
       products: [],
+      cartUpdated: this.props.cartUpdated,
+      logged_in: this.props.logged_in
+      // orderComplete: this.props.orderComplete,
     };
   }
 
@@ -20,7 +23,7 @@ export default class Homepage extends Component {
     const headers = {
       "Content-Type": "application/json",
     };
-    if (this.props.logged_in) {
+    if (this.state.logged_in) {
       const csrftoken = document.cookie
         .split("; ")
         .find((row) => row.startsWith("csrftoken"))
@@ -35,6 +38,17 @@ export default class Homepage extends Component {
       .then((data) => this.setState({ products: data }));
   }
 
+  componentDidUpdate(prevProps) {
+    console.log(prevProps.logged_in)
+    console.log(this.props.logged_in)
+    // Check if the cartUpdated prop has changed
+    if (prevProps.cartUpdated !== this.props.cartUpdated) {
+      this.setState({ cartUpdated: this.props.cartUpdated });
+    }
+    if (prevProps.logged_in !== this.props.logged_in) {
+      this.setState({logged_in: this.props.logged_in})
+    }
+  }
   renderHomePage() {
     return (
       <div>
@@ -52,12 +66,16 @@ export default class Homepage extends Component {
     );
   }
   render() {
+    console.log(this.state.logged_in)
     return (
       <BrowserRouter>
         <NavBar
-          logged_in={this.props.logged_in}
+          logged_in={this.state.logged_in}
           cart_total_updated={this.props.cart_total_updated}
           updatedToggler={this.props.updatedToggler}
+          cartUpdated={this.state.cartUpdated}
+          cartUpdatedToggler={this.props.cartUpdatedToggler}
+          // orderComplete={this.state.orderComplete}
         />
         <br></br>
         <div className="container">
@@ -68,7 +86,10 @@ export default class Homepage extends Component {
             <Route
               path="/cart"
               render={(props) => (
-                <CartPage {...props} logged_in={this.props.logged_in} />
+                <CartPage {...props} 
+                logged_in={this.state.logged_in} 
+                cartUpdated={this.state.cartUpdated}
+                cartUpdatedToggler={() =>{this.props.cartUpdatedToggler()}}/>
               )}
             />
             <Route
@@ -77,7 +98,7 @@ export default class Homepage extends Component {
                 return (
                   <ProductPage
                     {...props}
-                    logged_in={this.props.logged_in}
+                    logged_in={this.state.logged_in}
                     updatedToggler={this.props.updatedToggler}
                   />
                 );
@@ -86,14 +107,19 @@ export default class Homepage extends Component {
             <Route
               path="/checkout"
               render={(props) => (
-                <CheckoutPage {...props} logged_in={this.props.logged_in} />
+                <CheckoutPage 
+                {...props} 
+                logged_in={this.state.logged_in} 
+                // orderStatusToggler={this.props.orderStatusToggler}
+                // orderComplete={this.state.orderComplete}
+                />
               )}
             />
             <Route path="/register" component={RegisterPage} />
             <Route
               path="/login"
               render={(props) => {
-                if (this.props.logged_in) {
+                if (this.state.logged_in) {
                   // If user is already logged in, redirect to the homepage
                   return <Redirect to="/" />;
                 } else {
@@ -102,7 +128,7 @@ export default class Homepage extends Component {
                     <LoginPage
                       {...props}
                       logged_in={this.props.logged_in}
-                      logToggler={this.props.logToggler}
+                      // loggedToggler={() => {this.props.loggedToggler()}}
                     />
                   );
                 }

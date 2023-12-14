@@ -35,13 +35,13 @@ class ProductDetailView(generics.RetrieveAPIView):
 class CreateOrUpdateOrderView(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
-        print(data)
+        # print(data)
         product_id = data.get('product_id')
         product = Product.objects.get(id=product_id)
         if request.user.is_authenticated:
             customer = Customer.objects.filter(user=request.user).first()
         else:
-            print(self.request.session.exists(self.request.session.session_key))
+            # print(self.request.session.exists(self.request.session.session_key))
             if not self.request.session.exists(self.request.session.session_key):
                 self.request.session.create()
             
@@ -73,7 +73,7 @@ class RegisterView(APIView):
         if form.is_valid():
             # Validate email
             email = form.cleaned_data.get('email')
-            print(email)
+            # print(email)
             try:
                 validate_email(email)
             except ValidationError:
@@ -146,7 +146,7 @@ class LoginView(APIView):
             
             # Clear the stored URL in the session
             request.session.pop('redirect_url', None)
-            
+            print(f'logged_in: {user.is_authenticated}')
             # A backend authenticated the credentials
             return Response({'logged_in': user.is_authenticated}, status=status.HTTP_200_OK)
         else:
@@ -157,14 +157,15 @@ class LoginView(APIView):
 class LogoutView(APIView):
     def post(self, request):
         logout(request)
-        print(request.user.is_authenticated)
+        # print(request.user.is_authenticated)
         return Response({'message': 'User logged out successfully'}, status=status.HTTP_200_OK)
 
 class AuthCheck(APIView):
     def get(self, request):
         if request.user.is_authenticated:
             return Response({'logged_in': request.user.is_authenticated}, status=status.HTTP_200_OK)
-        return Response({'bad request': 'user not logged in'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'logged_out': request.user.is_authenticated}, status=status.HTTP_200_OK)
 class CartDataView(APIView):
     def get(self, request, *args, **kwargs):
         # Assuming the customer's order is passed in the request
@@ -182,7 +183,7 @@ class CartDataView(APIView):
         
         order, order_created = Order.objects.get_or_create(customer=customer, complete=False)
         # print(order_created)
-        print(f'session_key_cart_data: {request.session.session_key}')
+        # print(f'session_key_cart_data: {request.session.session_key}')
         # print(order)
 
         if not order.orderitem_set.exists():
@@ -212,7 +213,8 @@ class CartDataView(APIView):
             'total_cost': order.get_cart_total,
             'items': item_list,
             'shipping': order.shipping,
-            'anonymous_user': anonymous_user
+            'anonymous_user': anonymous_user,
+            'order_status': order.complete
         }
 
         # print(anonymous_user)
@@ -258,7 +260,7 @@ class ProcessOrderView(APIView):
         name = user_info['name']
         email = user_info['email']
 
-        print(request.user)
+        # print(request.user)
         
         # Check if the user is authenticated
         if not request.user.is_authenticated:
@@ -269,7 +271,7 @@ class ProcessOrderView(APIView):
             order, created = Order.objects.get_or_create(customer=customer)
         else:
             customer = request.user.customer
-            order, created = Order.objects.get_or_create(customer=customer)
+            order, created = Order.objects.get_or_create(customer=customer, complete=False)
 
         # Check if the user has the necessary permissions
         # In this example, we'll assume that only the customer who placed the order or a superuser can process it
@@ -279,10 +281,11 @@ class ProcessOrderView(APIView):
         # Add your order processing logic here
 
         # For example, you might update the order's status to 'processed'
-        if total == order.get_cart_total:
+        
+        if total == float(order.get_cart_total):
             order.complete = True
             order.save()
-            print(order)
+    
         if order.shipping == True:
             ShippingAddress.objects.create(
             customer=customer,
@@ -291,6 +294,7 @@ class ProcessOrderView(APIView):
             city=shipping_info['city'],
             state=shipping_info['state'],
             zipcode=shipping_info['zipcode'],
+            country=shipping_info['country']
             )
-
-        return Response({"message": "Order processed successfully"}, status=status.HTTP_200_OK)
+        
+        return Response({'order_status': order.complete}, status=status.HTTP_200_OK)

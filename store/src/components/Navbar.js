@@ -7,7 +7,10 @@ export default class NavBar extends Component{
   constructor(props) {
     super(props);
     this.state = {
-      totalItems: 0
+      totalItems: 0,
+      orderComplete: this.props.orderComplete,
+      cartUpdated: this.props.cartUpdated,
+      logged_in: this.props.logged_in
     }
     this.logOutHandler = this.logOutHandler.bind(this)
     this.fetchData = this.fetchData.bind(this)
@@ -16,7 +19,7 @@ export default class NavBar extends Component{
     const headers = {
       'Content-Type': 'application/json',
     };
-    if (this.props.logged_in) {
+    if (this.state.logged_in) {
       const csrftoken = document.cookie
         .split("; ")
         .find((row) => row.startsWith("csrftoken"))
@@ -30,19 +33,27 @@ export default class NavBar extends Component{
       return response.json();
     })
     .then((data) => {
-      this.setState({totalItems: data.total_items})
+      this.setState({totalItems: this.state.orderComplete ? 0 : data.total_items})
     })
   }
 
   componentDidMount() {
     this.fetchData()
   }
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     // Check if the 'logged_in' prop has changed
     if (this.props.cart_total_updated) {
       console.log('yeah')
       this.fetchData();
       this.props.updatedToggler();
+    }
+    if (prevProps.cartUpdated !== this.props.cartUpdated) {
+      this.fetchData()
+      this.setState({ cartUpdated: this.props.cartUpdated });
+    }
+    if (prevProps.logged_in !== this.props.logged_in) {
+      this.fetchData()
+      this.setState({logged_in: this.props.logged_in})
     }
   }
  
@@ -51,7 +62,7 @@ export default class NavBar extends Component{
     const headers = {
       "Content-Type": "application/json",
     };
-    if (this.props.logged_in) {
+    if (this.state.logged_in) {
       let csrftoken;
       const csrfCookie = document.cookie
         .split("; ")
@@ -105,7 +116,7 @@ export default class NavBar extends Component{
             </li>
           </ul>
           <div className="form-inline my-2 my-lg-0">
-            {this.props.logged_in ? <a href="/" className="btn btn-warning" onClick={this.logOutHandler}>
+            {this.state.logged_in ? <a href="/" className="btn btn-warning" onClick={this.logOutHandler}>
               Logout
             </a> : <a href="/login" className="btn btn-warning">
               Login
@@ -114,7 +125,7 @@ export default class NavBar extends Component{
             <a href="/cart">
               <img id="cart-icon" src={cartIcon} />
             </a>
-            <p id="cart-total">{this.props.logged_in ? this.state.totalItems : 0}</p>
+            <p id="cart-total">{this.state.totalItems}</p>
           </div>
         </div>
       </nav>

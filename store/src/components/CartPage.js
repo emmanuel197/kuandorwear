@@ -9,24 +9,43 @@ export default class CartPage extends Component {
       total_items: 0,
       total_cost: 0,
       item_list: [],
+      cartUpdated: this.props.cartUpdated
     };
     this.addOrRemoveItemHandler = this.addOrRemoveItemHandler.bind(this);
+    this.getCookie = this.getCookie.bind(this)
   }
-
-  addOrRemoveItemHandler(action, product_name) {
-    const headers = {
-      'Content-Type': 'application/json',
-    };
-    if (this.props.logged_in) {
-      const csrftoken = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("csrftoken"))
-        .split("=")[1];
-      headers['X-CSRFToken'] = csrftoken;
+  getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        let cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
     }
+    return cookieValue;
+}
+  addOrRemoveItemHandler(action, product_name) {
+    // const headers = {
+    //   'Content-Type': 'application/json',
+    // };
+    // if (this.props.logged_in) {
+    //   const csrftoken = document.cookie
+    //     .split("; ")
+    //     .find((row) => row.startsWith("csrftoken"))
+    //     .split("=")[1];
+    //   headers['X-CSRFToken'] = csrftoken;
+    // }
     const requestOptions = {
       method: 'POST',
-      headers: headers,
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": this.getCookie("csrftoken")
+    },
       body: JSON.stringify({
         "action": action,
         "product_name": product_name
@@ -42,13 +61,13 @@ export default class CartPage extends Component {
         this.setState(prevState => ({
           item_list: prevState.item_list.filter(item => item.product !== product_name || item.quantity !== 0)
         }));
+        this.props.cartUpdatedToggler()
       }
-      window.location.replace("/cart")
+      
     })
   }
 
-  
-  componentDidMount() { 
+  fetchData() {
     fetch("/api/cart-data")
       .then((response) => {
         return response.json();
@@ -62,7 +81,19 @@ export default class CartPage extends Component {
         });
       });
   }
-
+  componentDidMount() { 
+    console.log(this.state.cartUpdated)
+    this.fetchData()
+  }
+  
+  componentDidUpdate(prevProps) {
+    // console.log(this.state.cartUpdated)
+    // Check if the cartUpdated prop has changed
+    if (prevProps.cartUpdated !== this.props.cartUpdated) {
+      this.fetchData()
+      this.setState({ cartUpdated: this.props.cartUpdated });
+    }
+  }
   render() {
     const styles = {
       float: "right",

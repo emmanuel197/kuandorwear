@@ -15,18 +15,24 @@ export default class CheckoutPage extends Component {
         city: "",
         state: "",
         zipcode: "",
+        country: "",
       },
       total_items: 0,
       total_cost: 0,
       item_list: [],
       shipping: false,
       anonymousUser: false,
+      formButtonClicked: false,
+      // orderComplete: this.props.orderComplete
     };
 
     this.handleChange = this.handleChange.bind(this);
+    this.onFormButtonClick = this.onFormButtonClick.bind(this)
     this.processOrder = this.processOrder.bind(this);
+    this.renderPaypalButtons = this.renderPaypalButtons.bind(this);
   }
   componentDidMount() {
+    // console.log(this.state.orderComplete)
     const headers = {
       "Content-Type": "application/json",
     };
@@ -48,29 +54,17 @@ export default class CheckoutPage extends Component {
         return response.json();
       })
       .then((data) => {
-        // console.log(data);
+        console.log(data.order_status);
         this.setState({
-          total_items: data.total_items,
-          total_cost: data.total_cost,
-          item_list: data.items,
+          total_items: this.state.orderComplete ? 0 : data.total_items,
+          total_cost: this.state.orderComplete ? 0 : data.total_cost,
+          item_list: this.state.orderComplete ? 0 : data.items,
           shipping: data.shipping,
           anonymousUser: data.anonymous_user,
         });
       });
   }
-  handleChange(event) {
-    const { name, value } = event.target;
-    this.setState((prevState) => ({
-      userInfo: {
-        ...prevState.userInfo,
-        [name]: value,
-      },
-      shippingInfo: {
-        ...prevState.shippingInfo,
-        [name]: value,
-      },
-    }));
-  }
+
   processOrder() {
     const headers = {
       "Content-Type": "application/json",
@@ -104,8 +98,13 @@ export default class CheckoutPage extends Component {
           console.log("redirect");
           window.location.href = data.redirect;
         } else {
-          console.log(data);
-          window.location.replace("/");
+          console.log(data.order_status);
+          // if (data.order_status) {
+          //   this.props.orderStatusToggler()
+          // }
+          window.location.replace('/')
+          
+         
         }
       })
       .catch((error) => {
@@ -113,7 +112,71 @@ export default class CheckoutPage extends Component {
       });
   }
 
+  renderPaypalButtons() {
+    // Render PayPal buttons here
+    const total = `${this.state.total_cost}`
+    const processOrder = this.processOrder;
+
+    paypal
+      .Buttons({
+        style: {
+          color:  'blue',
+          shape:  'rect',
+      },
+        // Call your server to set up the transaction
+        createOrder: function (data, actions) {
+          return actions.order.create({
+            purchase_units: [
+              {
+                amount: {
+                  value:parseFloat(total).toFixed(2),
+                },
+              },
+            ],
+          });
+        },
+
+        // Call your server to finalize the transaction
+
+        // Finalize the transaction
+        onApprove: function (data, actions) {
+          return actions.order.capture().then((details) => {
+            // Show a success message to the buyer
+           processOrder()
+          });
+        },
+      })
+      .render("#paypal-button-container");
+  }
+
+  handleChange(event) {
+    const { name, value } = event.target;
+    this.setState((prevState) => ({
+      userInfo: {
+        ...prevState.userInfo,
+        [name]: value,
+      },
+      shippingInfo: {
+        ...prevState.shippingInfo,
+        [name]: value,
+      },
+    }));
+  }
+  onFormButtonClick() {
+    this.setState({ formButtonClicked: true })
+  }
+  
+
   render() {
+    if (this.state.formButtonClicked) {
+      const script = document.createElement("script");
+      script.src = "https://www.paypal.com/sdk/js?client-id=AXZcDTvdaIqs36jgbZNz8h_N_f8GYo8uhVamcgiwK0__pvP8ftifpCK94lVnve8uDfBTW3QSV1sS5PJB&currency=USD&disable-funding=credit";
+      script.async = true;
+      script.onload = () => {
+        this.renderPaypalButtons();
+      };
+      document.body.appendChild(script);
+    }
     const checkoutProducts = this.state.item_list.map((item) => (
       <CheckoutProduct
         name={item.product}
@@ -123,7 +186,7 @@ export default class CheckoutPage extends Component {
       />
     ));
     const { name, email } = this.state.userInfo;
-    const { address, city, state, zipcode } = this.state.shippingInfo;
+    const { address, city, state, zipcode, country } = this.state.shippingInfo;
     return (
       <div className="row">
         <div className="col-lg-6">
@@ -201,18 +264,37 @@ export default class CheckoutPage extends Component {
                       onChange={this.handleChange}
                     />
                   </div>
+                  <div className="form-field">
+                    <input
+                      className="form-control"
+                      type="text"
+                      name="country"
+                      placeholder="Country.."
+                      value={country}
+                      onChange={this.handleChange}
+                    />
+                  </div>
                 </div>
               )}
               <hr />
-              <button
-                id="form-button"
-                className="btn btn-success btn-block"
-                onClick={() => this.processOrder()}
-              >
-                Continue
-              </button>
+              {this.state.formButtonClicked == false && (
+                <button
+                  id="form-button"
+                  className="btn btn-success btn-block"
+                  onClick={() => this.onFormButtonClick()}
+                >
+                  Continue
+                </button>
+              )}
             </div>
           </div>
+          <br />
+          {this.state.formButtonClicked && (
+            <div class="box-element" id="payment-info">
+              <small>Paypal Options</small>
+              <div id="paypal-button-container"></div>
+            </div>
+          )}
         </div>
 
         <div className="col-lg-6">
