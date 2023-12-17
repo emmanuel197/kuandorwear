@@ -4,7 +4,7 @@ export default class LoginPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: "",
+      email: "",
       password: "",
       errorMessage: "",
       logged_in: this.props.logged_in
@@ -37,18 +37,6 @@ export default class LoginPage extends Component {
 }
 
   login() {
-    // const headers = {
-    //   "Content-Type": "application/json",
-    // };
-    // let csrftoken;
-    // const csrfCookie = document.cookie
-    //   .split("; ")
-    //   .find((row) => row.startsWith("csrftoken"));
-    // if (csrfCookie) {
-    //   csrftoken = csrfCookie.split("=")[1];
-    // }
-    // headers["X-CSRFToken"] = csrftoken;
-    
     fetch("/api/login/", {
       method: "POST",
       headers: {
@@ -56,7 +44,7 @@ export default class LoginPage extends Component {
         "X-CSRFToken": this.getCookie("csrftoken")
     },
       body: JSON.stringify({
-        "username": this.state.username,
+        "email": this.state.email,
         "password": this.state.password
       }),
     })
@@ -70,7 +58,6 @@ export default class LoginPage extends Component {
       })
       .then((data) => {
         console.log(data);
-        // this.props.loggedToggler()
         window.location.replace('/')
         this.setState({ errorMessage: "" });
       })
@@ -95,10 +82,10 @@ export default class LoginPage extends Component {
             <input
               className="register-form-input"
               type="text"
-              name="username"
-              placeholder="Username"
+              name="email"
+              placeholder="Email"
               onChange={this.handleChange}
-              value={this.state.username}
+              value={this.state.email}
             />
             <input
               className="register-form-input"

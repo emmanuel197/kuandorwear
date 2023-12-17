@@ -30,16 +30,6 @@ export default class CartPage extends Component {
     return cookieValue;
 }
   addOrRemoveItemHandler(action, product_name) {
-    // const headers = {
-    //   'Content-Type': 'application/json',
-    // };
-    // if (this.props.logged_in) {
-    //   const csrftoken = document.cookie
-    //     .split("; ")
-    //     .find((row) => row.startsWith("csrftoken"))
-    //     .split("=")[1];
-    //   headers['X-CSRFToken'] = csrftoken;
-    // }
     const requestOptions = {
       method: 'POST',
       headers: {
@@ -87,7 +77,6 @@ export default class CartPage extends Component {
   }
   
   componentDidUpdate(prevProps) {
-    // console.log(this.state.cartUpdated)
     // Check if the cartUpdated prop has changed
     if (prevProps.cartUpdated !== this.props.cartUpdated) {
       this.fetchData()

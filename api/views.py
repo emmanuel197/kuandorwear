@@ -109,7 +109,7 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     def post(self, request):
-        username = request.data.get('username')
+        username = request.data.get('email')
         password = request.data.get('password')
         anonymous_session_key = self.request.session.session_key
         user = authenticate(request, username=username, password=password)

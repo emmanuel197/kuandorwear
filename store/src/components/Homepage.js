@@ -15,7 +15,6 @@ export default class Homepage extends Component {
       products: [],
       cartUpdated: this.props.cartUpdated,
       logged_in: this.props.logged_in
-      // orderComplete: this.props.orderComplete,
     };
   }
 
@@ -75,7 +74,6 @@ export default class Homepage extends Component {
           updatedToggler={this.props.updatedToggler}
           cartUpdated={this.state.cartUpdated}
           cartUpdatedToggler={this.props.cartUpdatedToggler}
-          // orderComplete={this.state.orderComplete}
         />
         <br></br>
         <div className="container">
@@ -110,8 +108,6 @@ export default class Homepage extends Component {
                 <CheckoutPage 
                 {...props} 
                 logged_in={this.state.logged_in} 
-                // orderStatusToggler={this.props.orderStatusToggler}
-                // orderComplete={this.state.orderComplete}
                 />
               )}
             />
@@ -128,7 +124,6 @@ export default class Homepage extends Component {
                     <LoginPage
                       {...props}
                       logged_in={this.props.logged_in}
-                      // loggedToggler={() => {this.props.loggedToggler()}}
                     />
                   );
                 }
