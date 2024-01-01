@@ -8,4 +8,8 @@ urlpatterns = [
     path('checkout', index),
     path('register', index),
     path('login', index),
+    path('activate/<str:uid>/<str:token>', index),
+    path('reset-password', index),
+    path('password/reset/confirm/<str:uid>/<str:token>', index),
+
 ]

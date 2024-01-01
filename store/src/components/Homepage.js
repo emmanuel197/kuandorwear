@@ -4,9 +4,15 @@ import ProductPage from "./ProductPage";
 import CheckoutPage from "./CheckoutPage";
 import RegisterPage from "./RegisterPage";
 import LoginPage from "./LoginPage";
-import NavBar from "./Navbar";
+import Activate from "./Activate";
+import ResetPassword from "./ResetPassword";
+import ResetPasswordConfirm from "./ResetPasswordConfirm";
+
+// import NavBar from "./Navbar";
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import Product from "./Product";
+import Layout from "../hocs/Layout";
+
 export default class Homepage extends Component {
   constructor(props) {
     super(props);
@@ -14,7 +20,7 @@ export default class Homepage extends Component {
     this.state = {
       products: [],
       cartUpdated: this.props.cartUpdated,
-      logged_in: this.props.logged_in
+      logged_in: this.props.logged_in,
     };
   }
 
@@ -38,14 +44,14 @@ export default class Homepage extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log(prevProps.logged_in)
-    console.log(this.props.logged_in)
+    console.log(prevProps.logged_in);
+    console.log(this.props.logged_in);
     // Check if the cartUpdated prop has changed
     if (prevProps.cartUpdated !== this.props.cartUpdated) {
       this.setState({ cartUpdated: this.props.cartUpdated });
     }
     if (prevProps.logged_in !== this.props.logged_in) {
-      this.setState({logged_in: this.props.logged_in})
+      this.setState({ logged_in: this.props.logged_in });
     }
   }
   renderHomePage() {
@@ -65,10 +71,10 @@ export default class Homepage extends Component {
     );
   }
   render() {
-    console.log(this.state.logged_in)
+    console.log(this.state.logged_in);
     return (
       <BrowserRouter>
-        <NavBar
+        <Layout
           logged_in={this.state.logged_in}
           cart_total_updated={this.props.cart_total_updated}
           updatedToggler={this.props.updatedToggler}
@@ -84,10 +90,14 @@ export default class Homepage extends Component {
             <Route
               path="/cart"
               render={(props) => (
-                <CartPage {...props} 
-                logged_in={this.state.logged_in} 
-                cartUpdated={this.state.cartUpdated}
-                cartUpdatedToggler={() =>{this.props.cartUpdatedToggler()}}/>
+                <CartPage
+                  {...props}
+                  logged_in={this.state.logged_in}
+                  cartUpdated={this.state.cartUpdated}
+                  cartUpdatedToggler={() => {
+                    this.props.cartUpdatedToggler();
+                  }}
+                />
               )}
             />
             <Route
@@ -105,10 +115,7 @@ export default class Homepage extends Component {
             <Route
               path="/checkout"
               render={(props) => (
-                <CheckoutPage 
-                {...props} 
-                logged_in={this.state.logged_in} 
-                />
+                <CheckoutPage {...props} logged_in={this.state.logged_in} />
               )}
             />
             <Route path="/register" component={RegisterPage} />
@@ -121,12 +128,31 @@ export default class Homepage extends Component {
                 } else {
                   // Render the login page
                   return (
-                    <LoginPage
-                      {...props}
-                      logged_in={this.props.logged_in}
-                    />
+                    <LoginPage {...props} logged_in={this.props.logged_in} />
                   );
                 }
+              }}
+            />
+            {/* <Route exact path="/activate/:uid/:token" component={Activate} /> */}
+            <Route
+              path="/activate/:uid/:token"
+              render={(props) => {
+                return (
+                  <Activate
+                    {...props}
+                  />
+                );
+              }}
+            />
+            <Route exact path='/reset-password' component={ResetPassword} />
+            <Route
+              path="/password/reset/confirm/:uid/:token"
+              render={(props) => {
+                return (
+                  <ResetPasswordConfirm
+                    {...props}
+                  />
+                );
               }}
             />
           </Switch>

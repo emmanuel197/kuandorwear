@@ -1,6 +1,7 @@
 import React, { Component } from "react";
-
-export default class RegisterPage extends Component {
+import { signup } from '../actions/auth';
+import { connect } from "react-redux";
+class RegisterPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -9,55 +10,72 @@ export default class RegisterPage extends Component {
       password2: "",
       name: "",
       email: "",
-      formErrors: {},
+      accountCreated: false,
+      // formErrors: {},
     };
     this.register = this.register.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    
+  }
+  
+  componentDidUpdate(prevProps, prevState) {
+    // Check if account has been created and perform redirection
+    if (this.state.accountCreated && !prevState.accountCreated) {
+      this.props.history.push("/login");
+    }
   }
 
   register() {
-    const headers = {
-      "Content-Type": "application/json",
-    };
-    if (this.props.logged_in) {
-      let csrftoken;
-      const csrfCookie = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("csrftoken"));
-      if (csrfCookie) {
-        csrftoken = csrfCookie.split("=")[1];
-      }
-      headers["X-CSRFToken"] = csrftoken;
-    }
-    fetch("/api/register/", {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify({
-        username: this.state.username,
-        password1: this.state.password1,
-        password2: this.state.password2,
-        email: this.state.email,
-        name: this.state.name,
-      }),
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          const errorData = await response.json(); // Assuming error response contains JSON data
-          throw errorData; // Throw the errorData
-        } else {
-          return response.json();
-        }
-      })
-      .then((data) => {
-        console.log(data);
-        this.props.history.push("/login");
-        this.setState({ formErrors: {} });
-      })
-      .catch((errorData) => {
-        console.log(errorData.form_errors);
-        this.setState({ formErrors: errorData.form_errors });
-      });
+    if (this.state.password1 === this.state.password2) {
+      this.props.signup(this.state.username, this.state.email, this.state.password1, this.state.password2, this.state.name);
+      this.setState({accountCreated: true})
   }
+
+  
+    // const headers = {
+    //   "Content-Type": "application/json",
+    // };
+    // if (this.props.logged_in) {
+    //   let csrftoken;
+    //   const csrfCookie = document.cookie
+    //     .split("; ")
+    //     .find((row) => row.startsWith("csrftoken"));
+    //   if (csrfCookie) {
+    //     csrftoken = csrfCookie.split("=")[1];
+    //   }
+    //   headers["X-CSRFToken"] = csrftoken;
+    // }
+    // fetch("/api/register/", {
+    //   method: "POST",
+    //   headers: headers,
+    //   body: JSON.stringify({
+    //     username: this.state.username,
+    //     password1: this.state.password1,
+    //     password2: this.state.password2,
+    //     email: this.state.email,
+    //     name: this.state.name,
+    //   }),
+    // })
+    //   .then(async (response) => {
+    //     if (!response.ok) {
+    //       const errorData = await response.json(); // Assuming error response contains JSON data
+    //       throw errorData; // Throw the errorData
+    //     } else {
+    //       return response.json();
+    //     }
+    //   })
+    //   .then((data) => {
+    //     console.log(data);
+    //     this.props.history.push("/login");
+    //     this.setState({ formErrors: {} });
+    //   })
+    //   .catch((errorData) => {
+    //     console.log(errorData.form_errors);
+    //     this.setState({ formErrors: errorData.form_errors });
+    //   });
+  }
+
+  
 
   handleChange(event) {
     this.setState({ [event.target.name]: event.target.value });
@@ -117,15 +135,21 @@ export default class RegisterPage extends Component {
             <p className="message">
               Already registered? <a href="/login">Sign In</a>
             </p>
-            {this.state.formErrors &&
+            {/* {this.state.formErrors &&
               Object.keys(this.state.formErrors).map((key, i) => (
                 <p key={i}>
                   {this.state.formErrors[key]}
                 </p>
-              ))}
+              ))} */}
           </div>
         </div>
       </div>
     );
   }
 }
+
+const mapStateToProps = state => ({
+  isAuthenticated: state.auth.isAuthenticated
+});
+
+export default connect(mapStateToProps, { signup })(RegisterPage)

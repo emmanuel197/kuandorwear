@@ -12,6 +12,8 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login, logout
 from django.http import JsonResponse
 from django.db import transaction
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 # from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -22,8 +24,8 @@ class ProductListView(generics.ListAPIView):
 
 class ProductDetailView(generics.RetrieveAPIView):
     serializer_class = ProductSerializer
-
     def get(self, request, *args, **kwargs):
+        print(request.headers)
         id = self.kwargs.get('id')
         try:
             product = Product.objects.get(id=id)

@@ -3,7 +3,9 @@ import {
     Link
   } from 'react-router-dom'
 import cartIcon from "../../static/images/cart.png"
-export default class NavBar extends Component{
+import { logout } from '../actions/auth';
+import { connect } from "react-redux";
+class NavBar extends Component{
   constructor(props) {
     super(props);
     this.state = {
@@ -59,37 +61,41 @@ export default class NavBar extends Component{
  
 
   logOutHandler() {
-    const headers = {
-      "Content-Type": "application/json",
-    };
-    if (this.state.logged_in) {
-      let csrftoken;
-      const csrfCookie = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("csrftoken"));
-      if (csrfCookie) {
-        csrftoken = csrfCookie.split("=")[1];
-      }
-      headers["X-CSRFToken"] = csrftoken;
-    }
-    fetch('/api/logout/', {
-      method: 'POST',
-      headers: headers
-      })
-    .then(response => response.json())
-    .then(data => {
-          console.log(data);
+    this.props.logout()
+    this.props.history.push('/')
+    
+    // const headers = {
+    //   "Content-Type": "application/json",
+    // };
+    // if (this.state.logged_in) {
+    //   let csrftoken;
+    //   const csrfCookie = document.cookie
+    //     .split("; ")
+    //     .find((row) => row.startsWith("csrftoken"));
+    //   if (csrfCookie) {
+    //     csrftoken = csrfCookie.split("=")[1];
+    //   }
+    //   headers["X-CSRFToken"] = csrftoken;
+    // }
+    // fetch('/api/logout/', {
+    //   method: 'POST',
+    //   headers: headers
+    //   })
+    // .then(response => response.json())
+    // .then(data => {
+    //       console.log(data);
           
-          this.props.history.push("/");
+    //       this.props.history.push("/");
           
-          // You can add more code here to handle the response
-      })
-      .catch((error) => {
-          console.error('Error:', error);
-      });
+    //       // You can add more code here to handle the response
+    //   })
+    //   .catch((error) => {
+    //       console.error('Error:', error);
+    //   });
 
   }
   render() {
+    console.log(this.props.isAuthenticated)
     return (
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <a className="navbar-brand" href="/">
@@ -116,11 +122,11 @@ export default class NavBar extends Component{
             </li>
           </ul>
           <div className="form-inline my-2 my-lg-0">
-            {this.state.logged_in ? <a href="/" className="btn btn-warning" onClick={this.logOutHandler}>
+            {this.props.isAuthenticated ? <a href="/" className="btn btn-warning" onClick={this.logOutHandler}>
               Logout
             </a> : <a href="/login" className="btn btn-warning">
               Login
-            </a> 
+            </a>  
             }
             <a href="/cart">
               <img id="cart-icon" src={cartIcon} />
@@ -132,3 +138,9 @@ export default class NavBar extends Component{
     );
   }
 }
+
+const mapStateToProps = state => ({
+  isAuthenticated: state.auth.isAuthenticated
+});
+
+export default connect(mapStateToProps, { logout })(NavBar);  
