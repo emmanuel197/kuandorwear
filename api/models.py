@@ -11,11 +11,11 @@ class Customer(models.Model):
     name = models.CharField(max_length=200, null=True, blank=True)
     email = models.EmailField(max_length=200, null=True, blank=True)
 
-    def __str__(self):
-        if self.customer_id:
-            return self.customer_id
-        else:
-            return self.name
+    # def __str__(self):
+    #     if self.customer_id:
+    #         return self.customer_id
+    #     else:
+    #         return self.name
     
 
 class Product(models.Model):

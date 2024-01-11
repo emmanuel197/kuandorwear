@@ -7,7 +7,7 @@ import LoginPage from "./LoginPage";
 import Activate from "./Activate";
 import ResetPassword from "./ResetPassword";
 import ResetPasswordConfirm from "./ResetPasswordConfirm";
-
+import { getCookie } from "../util";
 // import NavBar from "./Navbar";
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import Product from "./Product";
@@ -25,19 +25,12 @@ export default class Homepage extends Component {
   }
 
   componentDidMount() {
-    const headers = {
-      "Content-Type": "application/json",
-    };
-    if (this.state.logged_in) {
-      const csrftoken = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("csrftoken"))
-        .split("=")[1];
-      headers["X-CSRFToken"] = csrftoken;
-    }
     fetch("/api/products", {
       method: "GET",
-      headers: headers,
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
     })
       .then((response) => response.json())
       .then((data) => this.setState({ products: data }));

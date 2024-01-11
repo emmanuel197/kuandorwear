@@ -5,6 +5,7 @@ import {
 import cartIcon from "../../static/images/cart.png"
 import { logout } from '../actions/auth';
 import { connect } from "react-redux";
+import { getCookie } from "../util";
 class NavBar extends Component{
   constructor(props) {
     super(props);
@@ -17,26 +18,29 @@ class NavBar extends Component{
     this.logOutHandler = this.logOutHandler.bind(this)
     this.fetchData = this.fetchData.bind(this)
   }
+  
   fetchData() {
-    const headers = {
-      'Content-Type': 'application/json',
-    };
-    if (this.state.logged_in) {
-      const csrftoken = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("csrftoken"))
-        .split("=")[1];
-      headers['X-CSRFToken'] = csrftoken;
-    }
+    const jwtToken = localStorage.getItem('access');
+
     fetch('/api/cart-data', {
       method: "GET",
-      headers: headers})
-    .then((response) => {
-      return response.json();
+      headers: { 
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken"),
+      'Authorization': `JWT ${jwtToken}`}
     })
+    .then(async (response) => {
+          if (!response.ok) {
+            const errorData = await response.json(); // Assuming error response contains JSON data
+            throw errorData; // Throw the errorData
+          } else {
+            return response.json();
+          }
+        })
     .then((data) => {
+      console.log(data)
       this.setState({totalItems: this.state.orderComplete ? 0 : data.total_items})
-    })
+    }).catch((errorData) => console.log(errorData))
   }
 
   componentDidMount() {
@@ -63,36 +67,6 @@ class NavBar extends Component{
   logOutHandler() {
     this.props.logout()
     this.props.history.push('/')
-    
-    // const headers = {
-    //   "Content-Type": "application/json",
-    // };
-    // if (this.state.logged_in) {
-    //   let csrftoken;
-    //   const csrfCookie = document.cookie
-    //     .split("; ")
-    //     .find((row) => row.startsWith("csrftoken"));
-    //   if (csrfCookie) {
-    //     csrftoken = csrfCookie.split("=")[1];
-    //   }
-    //   headers["X-CSRFToken"] = csrftoken;
-    // }
-    // fetch('/api/logout/', {
-    //   method: 'POST',
-    //   headers: headers
-    //   })
-    // .then(response => response.json())
-    // .then(data => {
-    //       console.log(data);
-          
-    //       this.props.history.push("/");
-          
-    //       // You can add more code here to handle the response
-    //   })
-    //   .catch((error) => {
-    //       console.error('Error:', error);
-    //   });
-
   }
   render() {
     console.log(this.props.isAuthenticated)

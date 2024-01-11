@@ -2,7 +2,10 @@ import React, { Component } from "react";
 import arrowUp from "../../static/images/arrow-up.png";
 import arrowDown from "../../static/images/arrow-down.png";
 import CartProduct from "./CartProduct";
-export default class CartPage extends Component {
+import { connect } from "react-redux";
+import { addCookieItem, addOrRemoveItemHandler } from "../cart";
+import { getCookie  } from "../util";
+class CartPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -11,54 +14,29 @@ export default class CartPage extends Component {
       item_list: [],
       cartUpdated: this.props.cartUpdated
     };
-    this.addOrRemoveItemHandler = this.addOrRemoveItemHandler.bind(this);
-    this.getCookie = this.getCookie.bind(this)
+    this.updateCart = this.updateCart.bind(this)
   }
-  getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        let cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            let cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
+  
+updateCart(action, product_id) {
+  console.log(this.props.isAuthenticated)
+  console.log(product_id)
+  if (this.props.isAuthenticated){
+    addOrRemoveItemHandler.call(this, action, product_id);
+  }else{
+    addCookieItem(action, product_id)
+  }
 }
-  addOrRemoveItemHandler(action, product_name) {
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": this.getCookie("csrftoken")
-    },
-      body: JSON.stringify({
-        "action": action,
-        "product_name": product_name
-      })
-    }
-    fetch("/api/update-cart/", requestOptions)
-    .then((response) => {
-      return response.json();
-    })
-    .then((data) => {
-      console.log(data)
-      if (data.message === 'Cart updated successfully') {
-        this.setState(prevState => ({
-          item_list: prevState.item_list.filter(item => item.product !== product_name || item.quantity !== 0)
-        }));
-        this.props.cartUpdatedToggler()
-      }
-      
-    })
-  }
 
   fetchData() {
-    fetch("/api/cart-data")
+    const jwtToken = localStorage.getItem('access');
+    const requestOptions = {
+      method: 'GET',
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+        'Authorization': `JWT ${jwtToken}`
+    }}
+    fetch("/api/cart-data", requestOptions)
       .then((response) => {
         return response.json();
       })
@@ -90,12 +68,13 @@ export default class CartPage extends Component {
     };
     const cartProducts = this.state.item_list.map((item) => (
       <CartProduct
+        id={item.id}
         name={item.product}
         price={item.price}
         image={item.image}
         quantity={item.quantity}
         total={item.total}
-        addOrRemoveItemHandler={(action, product_name) => this.addOrRemoveItemHandler(action, product_name)}
+        updateCart={(action, product_id) => this.updateCart(action, product_id)}
       />
     ));
     return (
@@ -150,3 +129,10 @@ export default class CartPage extends Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  isAuthenticated: state.auth.isAuthenticated
+});
+
+
+export default connect(mapStateToProps, null)(CartPage)

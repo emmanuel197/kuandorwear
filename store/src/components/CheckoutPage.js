@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import placeHolderImage from "../../static/images/placeholder.png";
 import CheckoutProduct from "./CheckoutProduct";
-export default class CheckoutPage extends Component {
+import { connect } from "react-redux";
+import { getCookie } from "../util";
+class CheckoutPage extends Component {
   constructor(props) {
     super(props);
 
@@ -33,22 +35,12 @@ export default class CheckoutPage extends Component {
   }
   componentDidMount() {
     // console.log(this.state.orderComplete)
-    const headers = {
-      "Content-Type": "application/json",
-    };
-    if (this.props.logged_in) {
-      let csrftoken;
-      const csrfCookie = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("csrftoken"));
-      if (csrfCookie) {
-        csrftoken = csrfCookie.split("=")[1];
-      }
-      headers["X-CSRFToken"] = csrftoken;
-    }
     fetch("/api/cart-data", {
       method: "GET",
-      headers: headers,
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      }
     })
       .then((response) => {
         return response.json();
@@ -60,28 +52,18 @@ export default class CheckoutPage extends Component {
           total_cost: this.state.orderComplete ? 0 : data.total_cost,
           item_list: this.state.orderComplete ? 0 : data.items,
           shipping: data.shipping,
-          anonymousUser: data.anonymous_user,
+          anonymousUser: this.props.isAuthenticated,
         });
       });
   }
 
   processOrder() {
-    const headers = {
-      "Content-Type": "application/json",
-    };
-    if (this.props.logged_in) {
-      let csrftoken;
-      const csrfCookie = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("csrftoken"));
-      if (csrfCookie) {
-        csrftoken = csrfCookie.split("=")[1];
-      }
-      headers["X-CSRFToken"] = csrftoken;
-    }
     const requestOptions = {
       method: "POST",
-      headers: headers,
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
       body: JSON.stringify({
         total: this.state.total_cost,
         user_info: this.state.userInfo,
@@ -314,3 +296,8 @@ export default class CheckoutPage extends Component {
     );
   }
 }
+const mapStateToProps = state => ({
+  isAuthenticated: state.auth.isAuthenticated
+});
+
+export default connect(mapStateToProps, null)(CheckoutPage);

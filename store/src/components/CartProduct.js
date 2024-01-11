@@ -8,7 +8,7 @@ export default class CartProduct extends Component {
   }
 
   render() {
-
+    console.log(this.props.id)
     return (
     <div className="cart-row">
         <div style={{ flex: "2" }}>
@@ -23,8 +23,8 @@ export default class CartProduct extends Component {
         <div style={{ flex: "1" }}>
           <p className="quantity">{this.props.quantity}</p>
           <div className="quantity">
-            <img className="chg-quantity" src={arrowUp} onClick={() => {this.props.addOrRemoveItemHandler('add', this.props.name)}}/>
-            <img className="chg-quantity" src={arrowDown} onClick={() => {this.props.addOrRemoveItemHandler('remove', this.props.name)}}/>
+            <img className="chg-quantity" src={arrowUp} onClick={() => {this.props.updateCart('add', this.props.id)}}/>
+            <img className="chg-quantity" src={arrowDown} onClick={() => {this.props.updateCart('remove', this.props.id)}}/>
           </div>
         </div>
         <div style={{ flex: "1" }}>

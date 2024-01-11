@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getCookie } from '../util';
 import {
     LOGIN_SUCCESS,
     LOGIN_FAIL,
@@ -28,6 +29,7 @@ export const load_user = () => async dispatch => {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `JWT ${localStorage.getItem('access')}`,
+                "X-CSRFToken": getCookie("csrftoken"),
                 'Accept': 'application/json'
             }
         }; 

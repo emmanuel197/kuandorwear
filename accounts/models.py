@@ -38,7 +38,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     def has_perm(self, perm, obj=None):
-        return self.is_admin
+        # print(f"User Permissions: {self.get_all_permissions()}")
+        
+        # Check if the user has the required permission to view a custom user
+        required_permission = "accounts.view_customuser"
+        return self.is_active or self.user_permissions.filter(codename=required_permission).exists()
 
     @property
     def is_superuser(self):

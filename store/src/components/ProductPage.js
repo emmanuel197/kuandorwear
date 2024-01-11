@@ -13,22 +13,32 @@ export default class ProductPage extends Component {
     this.renderProductDetail = this.renderProductDetail.bind(this)
     this.renderProductError = this.renderProductError.bind(this)
     this.productDetailData()
-    
+    this.getCookie = this.getCookie.bind(this)
   }
-  handleOrderedItem(product_id) {
-    const headers = {
-      'Content-Type': 'application/json',
-    };
-    if (this.props.logged_in) {
-      const csrftoken = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("csrftoken"))
-        .split("=")[1];
-      headers['X-CSRFToken'] = csrftoken;
+  getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        let cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
     }
+    return cookieValue;
+}
+  handleOrderedItem(product_id) {
+    const jwtToken = localStorage.getItem('access');
     const requestOptions = {
       method: "POST",
-      headers: headers,
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": this.getCookie("csrftoken"),
+        'Authorization': `JWT ${jwtToken}`
+    },
       body: JSON.stringify({"product_id": product_id})
     }
     fetch('/api/create-order/', requestOptions)
