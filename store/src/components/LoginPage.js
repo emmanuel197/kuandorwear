@@ -13,7 +13,6 @@ class LoginPage extends Component {
     };
     this.onSubmit = this.onSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    // this.getCookie = this.getCookie.bind(this)
   }
 
   componentDidUpdate(prevProps) {
@@ -24,6 +23,7 @@ class LoginPage extends Component {
 
   onSubmit() {
     this.props.login(this.state.email, this.state.password);
+    document.cookie = 'cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     console.log("Submitted");
     
 

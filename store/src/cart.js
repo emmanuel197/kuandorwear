@@ -4,12 +4,12 @@ var cart = JSON.parse(getCookie('cart'))
 
 if (cart == undefined){
     cart = {}
-    console.log('Cart Created!', cart)
+    // console.log('Cart Created!', cart)
     document.cookie ='cart=' + JSON.stringify(cart) + ";domain=;path=/"
 }
 
 export function addCookieItem(action, product_id){
-	console.log('User is not authenticated')
+	// console.log('User is not authenticated')
 
 	if (action == 'add'){
 		if (cart[product_id] == undefined){
@@ -24,11 +24,11 @@ export function addCookieItem(action, product_id){
 		cart[product_id]['quantity']--
 
 		if (cart[product_id]['quantity'] <= 0){
-			console.log('Item should be deleted')
+			// console.log('Item should be deleted')
 			delete cart[product_id];
 		}
 	}
-	console.log('CART:', cart)
+	// console.log('CART:', cart)
 	document.cookie ='cart=' + JSON.stringify(cart) + ";domain=;path=/"
 	
 	location.reload()
@@ -54,7 +54,7 @@ export function addOrRemoveItemHandler(action, product_id) {
       return response.json();
     })
     .then((data) => {
-      console.log(data)
+      // console.log(data)
       if (data.message === 'Cart updated successfully') {
         this.setState(prevState => ({
           item_list: prevState.item_list.filter(item => item.product.id !== product_id || item.quantity !== 0)
@@ -68,7 +68,7 @@ export function addOrRemoveItemHandler(action, product_id) {
 export function handleOrderedItem(product_id) {
     // console.log('is being called')
     const jwtToken = localStorage.getItem('access');
-    console.log(getCookie("csrftoken"))
+    // console.log(getCookie("csrftoken"))
     const requestOptions = {
       method: "POST",
       headers: {
@@ -86,8 +86,68 @@ export function handleOrderedItem(product_id) {
       return response.json();
     })
     .then(data => {
-      console.log(data)
+      // console.log(data)
       this.props.updatedToggler()
     })
     .catch(error => console.error(`Fetch Error =\n`, error));
   }
+
+export async function cookieCart() {
+    const items = [];
+    const order = { get_cart_total: 0, get_cart_items: 0, shipping: false };
+    let cartItems = order.get_cart_items;
+
+    for (const productId in cart) {
+      try {
+        if (cart[productId].quantity > 0) {
+          cartItems += cart[productId].quantity;
+          // console.log(productId)
+          // Assuming you have an array 'products' that contains your product data
+          const product = await fetch(`/api/product/${productId}`)
+          .then((response) => {
+            // console.log(response)
+            if(response.ok) {
+              return response.json()
+            } else {
+              this.setState({error: 'Product not found'})
+            }
+          })
+          .then(data => {
+            return data
+          })
+          .catch(error => console.log(error));
+          if (product) {
+            const total = product.price * cart[productId].quantity;
+
+            order.get_cart_total += total;
+            order.get_cart_items += cart[productId].quantity;
+
+            const item = {
+              id: product.id,
+              product: product.name,
+              price: product.price,
+              image: product.image,
+              quantity: cart[productId].quantity,
+              total: total,
+            };
+
+            items.push(item);
+
+            if (!product.digital) {
+              order.shipping = true;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error processing cart item:', error);
+      }
+    }
+
+    return {total_items: order.get_cart_items,
+      total_cost: order.get_cart_total,
+      items: items,
+      shipping: order.shipping
+    }
+  }
+
+  // Utility function to get a cookie by name

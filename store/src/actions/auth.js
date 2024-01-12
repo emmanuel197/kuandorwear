@@ -29,7 +29,6 @@ export const load_user = () => async dispatch => {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `JWT ${localStorage.getItem('access')}`,
-                "X-CSRFToken": getCookie("csrftoken"),
                 'Accept': 'application/json'
             }
         }; 

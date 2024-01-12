@@ -3,6 +3,7 @@ import placeHolderImage from "../../static/images/placeholder.png";
 import CheckoutProduct from "./CheckoutProduct";
 import { connect } from "react-redux";
 import { getCookie } from "../util";
+import {cookieCart} from "../cart"
 class CheckoutPage extends Component {
   constructor(props) {
     super(props);
@@ -23,7 +24,6 @@ class CheckoutPage extends Component {
       total_cost: 0,
       item_list: [],
       shipping: false,
-      anonymousUser: false,
       formButtonClicked: false,
       // orderComplete: this.props.orderComplete
     };
@@ -31,19 +31,26 @@ class CheckoutPage extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.onFormButtonClick = this.onFormButtonClick.bind(this)
     this.processOrder = this.processOrder.bind(this);
+    this.unAuthProcessOrder = this.unAuthProcessOrder.bind(this)
     this.renderPaypalButtons = this.renderPaypalButtons.bind(this);
+    this.fetchData = this.fetchData.bind(this)
   }
-  componentDidMount() {
-    // console.log(this.state.orderComplete)
-    fetch("/api/cart-data", {
+
+  async fetchData() {
+   if (this.props.isAuthenticated) {fetch("/api/cart-data", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": getCookie("csrftoken"),
       }
     })
-      .then((response) => {
-        return response.json();
+      .then(async (response) => {
+        if (!response.ok) {
+          const errorData = await response.json(); // Assuming error response contains JSON data
+          throw errorData; // Throw the errorData
+        } else {
+          return response.json();
+        }
       })
       .then((data) => {
         console.log(data.order_status);
@@ -52,16 +59,38 @@ class CheckoutPage extends Component {
           total_cost: this.state.orderComplete ? 0 : data.total_cost,
           item_list: this.state.orderComplete ? 0 : data.items,
           shipping: data.shipping,
-          anonymousUser: this.props.isAuthenticated,
         });
-      });
+      })
+      .catch((errorData) => console.log(errorData));
+    } else {
+      console.log('cookieCart')
+         const { total_items, total_cost, items, shipping } = await cookieCart.call(this)
+         this.setState({
+          total_items: this.state.orderComplete ? 0 : total_items,
+          total_cost: this.state.orderComplete ? 0 : total_cost,
+          item_list: this.state.orderComplete ? 0 : items, 
+          shipping: shipping,
+         });
+         console.log(shipping)
+    }
+  }
+  componentDidMount() {
+    // console.log(this.state.orderComplete)
+    this.fetchData()
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.isAuthenticated !== this.props.isAuthenticated) {
+      this.fetchData();
+    }
+  }
   processOrder() {
+    const jwtToken = localStorage.getItem("access");
     const requestOptions = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `JWT ${jwtToken}`,
         "X-CSRFToken": getCookie("csrftoken"),
       },
       body: JSON.stringify({
@@ -93,11 +122,50 @@ class CheckoutPage extends Component {
         console.error(error);
       });
   }
-
+  unAuthProcessOrder() {
+    
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: JSON.stringify({
+        total: this.state.total_cost,
+        user_info: this.state.userInfo,
+        shipping_info: this.state.shippingInfo,
+      }),
+    };
+    fetch("/api/unauth-process-order/", requestOptions)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        if (data.redirect) {
+          // Redirect to the registration page
+          console.log("redirect");
+          window.location.href = data.redirect;
+        } else {
+          console.log(data.order_status);
+          // if (data.order_status) {
+          //   this.props.orderStatusToggler()
+          // }
+          window.location.replace('/')
+          
+         
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
   renderPaypalButtons() {
     // Render PayPal buttons here
     const total = `${this.state.total_cost}`
     const processOrder = this.processOrder;
+    const unAuthProcessOrder = this.unAuthProcessOrder;
+    const isAuthenticated = this.props.isAuthenticated
+    console.log(`paypal:isauthenticated: ${this.props.isAuthenticated}`)
 
     paypal
       .Buttons({
@@ -107,6 +175,7 @@ class CheckoutPage extends Component {
       },
         // Call your server to set up the transaction
         createOrder: function (data, actions) {
+          // console.log(`paypal:isauthenticated: ${this.props.isAuthenticated}`)
           return actions.order.create({
             purchase_units: [
               {
@@ -124,7 +193,12 @@ class CheckoutPage extends Component {
         onApprove: function (data, actions) {
           return actions.order.capture().then((details) => {
             // Show a success message to the buyer
-           processOrder()
+          
+           if (isAuthenticated) {
+            processOrder()
+           } else {
+            unAuthProcessOrder()
+           }
           });
         },
       })
@@ -174,7 +248,7 @@ class CheckoutPage extends Component {
         <div className="col-lg-6">
           <div className="box-element" id="form-wrapper">
             <div>
-              {this.state.anonymousUser && (
+              {!this.props.isAuthenticated && (
                 <div id="user-info">
                   <div className="form-field">
                     <input

@@ -37,8 +37,8 @@ export default class Homepage extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log(prevProps.logged_in);
-    console.log(this.props.logged_in);
+    // console.log(prevProps.logged_in);
+    // console.log(this.props.logged_in);
     // Check if the cartUpdated prop has changed
     if (prevProps.cartUpdated !== this.props.cartUpdated) {
       this.setState({ cartUpdated: this.props.cartUpdated });
@@ -64,7 +64,7 @@ export default class Homepage extends Component {
     );
   }
   render() {
-    console.log(this.state.logged_in);
+    // console.log(this.state.logged_in);
     return (
       <BrowserRouter>
         <Layout
