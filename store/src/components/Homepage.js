@@ -87,6 +87,7 @@ export default class Homepage extends Component {
                   {...props}
                   logged_in={this.state.logged_in}
                   cartUpdated={this.state.cartUpdated}
+                  updatedToggler={this.props.updatedToggler}
                   cartUpdatedToggler={() => {
                     this.props.cartUpdatedToggler();
                   }}
@@ -101,6 +102,7 @@ export default class Homepage extends Component {
                     {...props}
                     logged_in={this.state.logged_in}
                     updatedToggler={this.props.updatedToggler}
+                    cartUpdatedToggler={this.props.cartUpdatedToggler}
                   />
                 );
               }}

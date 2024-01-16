@@ -171,9 +171,13 @@ export const login = (email, password) => async dispatch => {
 
         dispatch(load_user());
     } catch (err) {
-        dispatch({
-            type: LOGIN_FAIL
-        })
+        console.log(err)
+        if (err.response && err.response.data) {
+            dispatch({
+                type: LOGIN_FAIL,
+                payload: err.response.data
+            })
+        }  
     }
 };
 
@@ -195,11 +199,37 @@ export const signup = (username, email, password, re_password, name) => async di
             payload: res.data
         });
     } catch (err) {
-        dispatch({
-            type: SIGNUP_FAIL
-        })
+        console.log(err)
+         if (err.response && err.response.data) {
+      // Djoser validation error messages
+    //   const errors = err.response.data;
+    //   const formErrors = {};
+
+      // Map Djoser error keys to user-friendly error messages
+    //   Object.keys(errors).forEach(key => {
+    //     switch (key) {
+    //       case 'username':
+    //         formErrors.username = errors[key][0];
+    //         break;
+    //       case 'email':
+    //         formErrors.email = errors[key][0];
+    //         break;
+    //       case 'password1':
+    //         formErrors.password1 = errors[key][0];
+    //         break;
+    //       // Handle other Djoser validation errors as needed
+    //       default:
+    //         formErrors[key] = errors[key][0];
+    //     }
+    //   });
+
+      dispatch({
+        type: SIGNUP_FAIL,
+        payload: err.response.data
+      });
+     
     }
-};
+}};
 
 export const verify = (uid, token) => async dispatch => {
     const config = {

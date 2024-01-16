@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import arrowUp from "../../static/images/arrow-up.png";
 import arrowDown from "../../static/images/arrow-down.png";
-import placeHolderImage from "../../static/images/placeholder.png";
+import placxeHolderImage from "../../static/images/placeholder.png";
 export default class CartProduct extends Component {
   constructor(props) {
     super(props);

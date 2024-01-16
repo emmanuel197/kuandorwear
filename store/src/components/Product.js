@@ -15,7 +15,7 @@ class Product extends Component {
     if (this.props.isAuthenticated) {
       handleOrderedItem.call(this, product_id)
     } else{
-      addCookieItem(action, product_id)
+      addCookieItem.call(this, action, product_id)
     }
   }
   

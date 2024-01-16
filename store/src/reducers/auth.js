@@ -24,7 +24,8 @@ const initialState = {
     access: localStorage.getItem('access'),
     refresh: localStorage.getItem('refresh'),
     isAuthenticated: null,
-    user: null
+    user: null,
+    formErrors: null
 };
 
 export default function(state = initialState, action) {
@@ -50,7 +51,8 @@ export default function(state = initialState, action) {
         case SIGNUP_SUCCESS:
             return {
                 ...state,
-                isAuthenticated: false
+                isAuthenticated: false,
+                formErrors: null
             }
         case USER_LOADED_SUCCESS:
             return {
@@ -74,12 +76,33 @@ export default function(state = initialState, action) {
         case LOGOUT:
             localStorage.removeItem('access');
             localStorage.removeItem('refresh');
+            console.log(`reducers:signuperror: ${payload}`)
+            const errors = payload
+            console.log(errors.detail)
+            const formErrors = {}
+            Object.keys(errors).forEach(key => {
+                switch (key) {
+                  case 'username':
+                    formErrors.username = errors[key][0];
+                    break;
+                  case 'email':
+                    formErrors.email = errors[key][0];
+                    break;
+                  case 'password1':
+                    formErrors.password1 = errors[key][0];
+                    break;
+                  // Handle other Djoser validation errors as needed
+                  default:
+                    formErrors[key] = errors.detail ? errors.detail : errors[key][0]
+                }
+              });
             return {
                 ...state,
                 access: null,
                 refresh: null,
                 isAuthenticated: false,
-                user: null
+                user: null,
+                formErrors: formErrors
             }
         case PASSWORD_RESET_SUCCESS:
         case PASSWORD_RESET_FAIL:

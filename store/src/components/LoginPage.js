@@ -21,19 +21,33 @@ class LoginPage extends Component {
     }
   }
 
-  onSubmit() {
-    this.props.login(this.state.email, this.state.password);
-    document.cookie = 'cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    console.log("Submitted");
-    
+ async onSubmit() {
+    // this.props.login(this.state.email, this.state.password);
+    // document.cookie = 'cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    // console.log("Submitted");
+    try {
+      await this.props.login(this.state.email, this.state.password);
+      document.cookie = 'cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      console.log("Submitted");
+    } catch (error) {
+      console.log(`error response: ${error.response}`)
+      if (error.response && error.response.data) {
+        this.setState({ errorMessage: error.response.data.non_field_errors.join(", ") });
+        console.log(`errorMessage: ${error.response.data.non_field_errors.join(", ")}`)
+      } else {
+        this.setState({ errorMessage: "Invalid username or password" });
+      }
+    }
 
   }
 
   handleChange(event) {
-    this.setState({ [event.target.name]: event.target.value });
+    // this.setState({ [event.target.name]: event.target.value });
+    this.setState({ [event.target.name]: event.target.value, errorMessage: "" });
   }
 
   render() {
+    console.log(this.props.formErrors)
     const styles = {
         width: "600px"
     }
@@ -66,7 +80,13 @@ class LoginPage extends Component {
             <p className="message">
               Forgot your Password? <a href="/reset-password">Reset Password</a>
             </p>
-            {this.state.errorMessage && <p>{this.state.errorMessage}</p>}
+            {this.props.formErrors && (
+              <div className="error-message">
+                {Object.keys(this.props.formErrors).map((key, i) => (
+                  <p key={i}>{this.props.formErrors[key]}</p>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -76,7 +96,8 @@ class LoginPage extends Component {
 
 
 const mapStateToProps = state => ({
-    isAuthenticated: state.auth.isAuthenticated
+    isAuthenticated: state.auth.isAuthenticated,
+    formErrors: state.auth.formErrors
 });
 
 export default connect(mapStateToProps, { login })(LoginPage);

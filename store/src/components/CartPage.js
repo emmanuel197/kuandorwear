@@ -31,7 +31,7 @@ class CartPage extends Component {
     if (this.props.isAuthenticated) {
       addOrRemoveItemHandler.call(this, action, product_id);
     } else {
-      addCookieItem(action, product_id);
+      addCookieItem.call(this, action, product_id);
     }
   }
 
@@ -107,7 +107,7 @@ class CartPage extends Component {
         price={item.price}
         image={item.image}
         quantity={item.quantity}
-        total={item.total}
+        total={parseFloat(item.total).toFixed(2)}
         updateCart={(action, product_id) => this.updateCart(action, product_id)}
       />
     ));

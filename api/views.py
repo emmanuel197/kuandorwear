@@ -203,6 +203,7 @@ class UnAuthProcessOrderView(APIView):
                 product=product,
                 defaults={'quantity': cart[i]['quantity']}
             )
+        print
         if total == float(order.get_cart_total):
             order.complete = True
             order.save()

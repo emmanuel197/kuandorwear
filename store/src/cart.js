@@ -30,8 +30,9 @@ export function addCookieItem(action, product_id){
 	}
 	// console.log('CART:', cart)
 	document.cookie ='cart=' + JSON.stringify(cart) + ";domain=;path=/"
-	
-	location.reload()
+	this.props.updatedToggler()
+  this.props.cartUpdatedToggler()
+	// location.reload()
 }
 
 

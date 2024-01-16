@@ -1,8 +1,10 @@
 import React, { Component } from "react";
 import Product from "./Product";
 import placeHolderImage from "../../static/images/placeholder.png";
-
-export default class ProductPage extends Component {
+import { getCookie } from "../util";
+import { addCookieItem, handleOrderedItem } from "../cart";
+import { connect } from "react-redux"
+class ProductPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -13,46 +15,16 @@ export default class ProductPage extends Component {
     this.renderProductDetail = this.renderProductDetail.bind(this)
     this.renderProductError = this.renderProductError.bind(this)
     this.productDetailData()
-    this.getCookie = this.getCookie.bind(this)
   }
-  getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        let cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            let cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
+
+
+  addToCart(action, product_id) {
+    console.log(this.props.isAuthenticated)
+    if (this.props.isAuthenticated) {
+      handleOrderedItem.call(this, product_id)
+    } else{
+      addCookieItem.call(this, action, product_id)
     }
-    return cookieValue;
-}
-  handleOrderedItem(product_id) {
-    const jwtToken = localStorage.getItem('access');
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": this.getCookie("csrftoken"),
-        'Authorization': `JWT ${jwtToken}`
-    },
-      body: JSON.stringify({"product_id": product_id})
-    }
-    fetch('/api/create-order/', requestOptions)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log(data)
-      this.props.updatedToggler()
-    })
-    .catch(error => console.error(`Fetch Error =\n`, error));
   }
   
 productDetailData() {
@@ -88,7 +60,7 @@ renderProductDetail() {
             <p id="price">${this.state.product.price} <del>$199.99</del></p>
            
             <a id="product-detail-button" onClick={() => {
-              this.handleOrderedItem(this.state.product.id)}}>Add to Cart</a>
+              this.addToCart('add', this.props.match.params.id)}}>Add to Cart</a>
             
           </div>
         </div>
@@ -134,5 +106,9 @@ renderProductError() {
     ;
   }
 
+const mapStatetoProps = (state) => ({
+    isAuthenticated: state.auth.isAuthenticated
+})
 
+export default connect(mapStatetoProps, null) (ProductPage)
 

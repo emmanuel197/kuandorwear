@@ -25,7 +25,7 @@ class CheckoutPage extends Component {
       item_list: [],
       shipping: false,
       formButtonClicked: false,
-      // orderComplete: this.props.orderComplete
+      orderComplete: this.props.orderComplete
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -37,11 +37,14 @@ class CheckoutPage extends Component {
   }
 
   async fetchData() {
-   if (this.props.isAuthenticated) {fetch("/api/cart-data", {
+   if (this.props.isAuthenticated) {
+    const jwtToken = localStorage.getItem("access");
+    fetch("/api/cart-data", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": getCookie("csrftoken"),
+        "Authorization": `JWT ${jwtToken}`,
       }
     })
       .then(async (response) => {
@@ -144,12 +147,10 @@ class CheckoutPage extends Component {
         if (data.redirect) {
           // Redirect to the registration page
           console.log("redirect");
+          document.cookie = 'cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
           window.location.href = data.redirect;
         } else {
           console.log(data.order_status);
-          // if (data.order_status) {
-          //   this.props.orderStatusToggler()
-          // }
           window.location.replace('/')
           
          
@@ -165,7 +166,7 @@ class CheckoutPage extends Component {
     const processOrder = this.processOrder;
     const unAuthProcessOrder = this.unAuthProcessOrder;
     const isAuthenticated = this.props.isAuthenticated
-    console.log(`paypal:isauthenticated: ${this.props.isAuthenticated}`)
+    // console.log(`paypal:isauthenticated: ${this.props.isAuthenticated}`)
 
     paypal
       .Buttons({
