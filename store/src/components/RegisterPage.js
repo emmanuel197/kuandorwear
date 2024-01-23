@@ -11,10 +11,12 @@ class RegisterPage extends Component {
       name: "",
       email: "",
       accountCreated: false,
+      showError: false
       // formErrors: {},
     };
     this.register = this.register.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleClose = this.handleClose.bind(this)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -22,7 +24,14 @@ class RegisterPage extends Component {
     if (this.state.accountCreated && !prevState.accountCreated) {
       this.props.history.push("/login");
     }
+    if (this.props.formErrors !== prevProps.formErrors) {
+      this.setState({ showError: true });
+    }
   }
+
+  handleClose() {
+    this.setState({ showError: false });
+  };
 
 async register() {
      await this.props.signup(
@@ -48,7 +57,7 @@ async register() {
       width: "600px",
     };
     return (
-      <div className="registration-page-wrapper">
+      <div className="registration-page-wrapper mt-5">
         <div className="box-element" style={styles}>
           <div className="register-form-container">
             <input
@@ -97,19 +106,26 @@ async register() {
             <p className="message">
               Already registered? <a href="/login">Sign In</a>
             </p>
-            {this.props.formErrors && (
-              <div className="error-message">
-                {Object.keys(this.props.formErrors).map((key, i) => (
+            {this.state.showError && (
+              <div
+                className="alert alert-danger alert-dismissible fade show"
+                role="alert"
+              >
+                <strong>Error!</strong>   {Object.keys(this.props.formErrors).map((key, i) => (
                   <p key={i}>{this.props.formErrors[key]}</p>
                 ))}
+                <button
+                  type="button"
+                  className="close"
+                  data-dismiss="alert"
+                  aria-label="Close"
+                  onClick={this.handleClose}
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
               </div>
             )}
-            {/* {this.state.formErrors &&
-              Object.keys(this.state.formErrors).map((key, i) => (
-                <p key={i}>
-                  {this.state.formErrors[key]}
-                </p>
-              ))} */}
+            
           </div>
         </div>
       </div>

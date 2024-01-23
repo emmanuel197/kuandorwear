@@ -5,7 +5,7 @@ import CartProduct from "./CartProduct";
 import { connect } from "react-redux";
 import { addCookieItem, addOrRemoveItemHandler, cookieCart } from "../cart";
 import { getCookie } from "../util";
-
+import { Link } from 'react-router-dom';
 class CartPage extends Component {
   constructor(props) {
     super(props);
@@ -112,52 +112,62 @@ class CartPage extends Component {
       />
     ));
     return (
-      <div className="col-lg-12">
-        <div className="box-element">
-          <a className="btn btn-outline-dark" href="/">
-            &#x2190; Continue Shopping
-          </a>
-          <br />
-          <br />
-          <table className="table">
-            <tr>
-              <th>
-                <h5>
-                  Items: <strong>{this.state.total_items}</strong>
-                </h5>
-              </th>
-              <th>
-                <h5>
-                  Total:<strong> $ {this.state.total_cost}</strong>
-                </h5>
-              </th>
-              <th>
-                <a style={styles} className="btn btn-success" href="/checkout">
-                  Checkout
-                </a>
-              </th>
-            </tr>
-          </table>
-        </div>
+      <div className="container">
+        <div className="row mt-5">
+          <div className="col-lg-12">
+            <div className="box-element">
+              <Link className="btn btn-outline-dark" to="/">
+                &#x2190; Continue Shopping
+              </Link>
+              <br />
+              <br />
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>
+                      <h5>
+                        Items: <strong>{this.state.total_items}</strong>
+                      </h5>
+                    </th>
+                    <th>
+                      <h5>
+                        Total:<strong> $ {this.state.total_cost}</strong>
+                      </h5>
+                    </th>
+                    <th>
+                      <Link
+                        style={styles}
+                        className="btn btn-success"
+                        to="/checkout"
+                      >
+                        Checkout
+                      </Link>
+                    </th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
 
-        <br />
-        <div className="box-element">
-          <div className="cart-row">
-            <div style={{ flex: "2" }}></div>
-            <div style={{ flex: "2" }}>
-              <strong>Item</strong>
-            </div>
-            <div style={{ flex: "1" }}>
-              <strong>Price</strong>
-            </div>
-            <div style={{ flex: "1" }}>
-              <strong>Quantity</strong>
-            </div>
-            <div style={{ flex: "1" }}>
-              <strong>Total</strong>
+            <br />
+            <div className="box-element">
+              <div className="cart-row">
+                <div style={{ flex: "2" }}></div>
+                <div style={{ flex: "2" }}>
+                  <strong>Item</strong>
+                </div>
+                <div style={{ flex: "1" }}>
+                  <strong>Price</strong>
+                </div>
+                <div style={{ flex: "1" }}>
+                  <strong>Quantity</strong>
+                </div>
+                <div style={{ flex: "1" }}>
+                  <strong>Total</strong>
+                </div>
+              </div>
+              {cartProducts}
             </div>
           </div>
-          {cartProducts}
         </div>
       </div>
     );

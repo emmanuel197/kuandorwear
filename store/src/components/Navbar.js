@@ -12,14 +12,13 @@ class NavBar extends Component {
       totalItems: 0,
       orderComplete: this.props.orderComplete,
       cartUpdated: this.props.cartUpdated,
-      logged_in: this.props.logged_in,
     };
     this.logOutHandler = this.logOutHandler.bind(this);
     this.fetchData = this.fetchData.bind(this);
   }
 
   async fetchData() {
-    console.log(this.props.isAuthenticated)
+    console.log(this.props.isAuthenticated);
     if (this.props.isAuthenticated) {
       const jwtToken = localStorage.getItem("access");
 
@@ -28,7 +27,7 @@ class NavBar extends Component {
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": getCookie("csrftoken"),
-          "Authorization": `JWT ${jwtToken}`,
+          Authorization: `JWT ${jwtToken}`,
         },
       })
         .then(async (response) => {
@@ -46,14 +45,14 @@ class NavBar extends Component {
           });
         })
         .catch((errorData) => console.log(errorData));
-    }  else {
-          console.log('cookieCart')
-         const { total_items } = await cookieCart.call(this)
-         this.setState({
-           totalItems: this.state.orderComplete ? 0 : total_items,
-         });
-         console.log(total_items)
-     }
+    } else {
+      console.log("cookieCart");
+      const { total_items } = await cookieCart.call(this);
+      this.setState({
+        totalItems: this.state.orderComplete ? 0 : total_items,
+      });
+      console.log(total_items);
+    }
   }
 
   componentDidMount() {
@@ -82,15 +81,15 @@ class NavBar extends Component {
   render() {
     // console.log(this.props.isAuthenticated);
     return (
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a className="navbar-brand" href="/">
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+        <a className="navbar-brand " href="/">
           KuandorWear
         </a>
         <button
           className="navbar-toggler"
           type="button"
-          data-toggle="collapse"
-          data-target="#navbarSupportedContent"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
           aria-controls="navbarSupportedContent"
           aria-expanded="false"
           aria-label="Toggle navigation"
@@ -99,17 +98,18 @@ class NavBar extends Component {
         </button>
 
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav mr-auto">
-            <li className="nav-item active">
-              <a className="nav-link" href="/">
-                Store <span className="sr-only">(current)</span>
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+            <li className="nav-item">
+              <a className="nav-link active" aria-current="page" href="/">
+                Store
               </a>
             </li>
           </ul>
-          <div className="form-inline my-2 my-lg-0">
+          <div className="d-flex align-items-center">
             {this.props.isAuthenticated ? (
               <a
                 href="/"
+                id="btn"
                 className="btn btn-warning"
                 onClick={this.logOutHandler}
               >

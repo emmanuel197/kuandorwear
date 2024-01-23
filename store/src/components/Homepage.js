@@ -12,19 +12,30 @@ import { getCookie } from "../util";
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import Product from "./Product";
 import Layout from "../hocs/Layout";
-
-export default class Homepage extends Component {
+import SearchComponent from "./SearchComponent";
+import FilterComponent from "./Filter";
+import heroImg from "../../static/images/pexels-albin-biju-6717680.jpg";
+import { connect } from "react-redux";
+class Homepage extends Component {
   constructor(props) {
     super(props);
     this.renderHomePage = this.renderHomePage.bind(this);
     this.state = {
       products: [],
-      cartUpdated: this.props.cartUpdated,
-      logged_in: this.props.logged_in,
+      cartUpdated: this.props.cartUpdated
     };
+    this.fetchData = this.fetchData.bind(this);
+    this.productToggler = this.productToggler.bind(this);
   }
 
-  componentDidMount() {
+  productToggler(data) {
+    console.log(`home:product ${data}`);
+    this.setState((prevstate) => {
+      return { ...prevstate, products: data };
+    });
+  }
+
+  fetchData() {
     fetch("/api/products", {
       method: "GET",
       headers: {
@@ -36,123 +47,154 @@ export default class Homepage extends Component {
       .then((data) => this.setState({ products: data }));
   }
 
-  componentDidUpdate(prevProps) {
-    // console.log(prevProps.logged_in);
-    // console.log(this.props.logged_in);
-    // Check if the cartUpdated prop has changed
+  componentDidMount() {
+    this.fetchData();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
     if (prevProps.cartUpdated !== this.props.cartUpdated) {
       this.setState({ cartUpdated: this.props.cartUpdated });
     }
-    if (prevProps.logged_in !== this.props.logged_in) {
-      this.setState({ logged_in: this.props.logged_in });
-    }
+    // if (prevState.products !== this.state.products) {
+    //   this.fetchData()
+    // }
   }
   renderHomePage() {
+    console.log(this.state.products);
+    console.log(heroImg);
     return (
       <div>
-        <div className="row">
-          {this.state.products.map((product) => (
-            <Product
-              key={product.id}
-              product={product}
-              cart_total_updated={this.props.cart_total_updated}
-              updatedToggler={this.props.updatedToggler}
-            />
-          ))}
+        <div
+          className="hero-section mb-5"
+          style={{
+            backgroundImage: `url(${heroImg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
+          <h1 style={{ color: "#92ecf6" }}>Welcome to Our Store</h1>
+          <p>Explore our collection of amazing products.</p>
+        </div>
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-4">
+              <p className="navbar-brand mb-4">Filter</p>
+              <FilterComponent
+                products={this.state.products}
+                productToggler={(data) => {
+                  this.productToggler(data);
+                }}
+              />
+            </div>
+            <div className="col-lg-8">
+              <SearchComponent
+                products={this.state.products}
+                productToggler={(data) => {
+                  this.productToggler(data);
+                }}
+              />
+              <div className="row">
+                {this.state.products.map((product) => (
+                  <Product
+                    key={product.id}
+                    product={product}
+                    cart_total_updated={this.props.cart_total_updated}
+                    updatedToggler={this.props.updatedToggler}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
   render() {
-    // console.log(this.state.logged_in);
     return (
       <BrowserRouter>
         <Layout
-          logged_in={this.state.logged_in}
           cart_total_updated={this.props.cart_total_updated}
           updatedToggler={this.props.updatedToggler}
           cartUpdated={this.state.cartUpdated}
           cartUpdatedToggler={this.props.cartUpdatedToggler}
         />
-        <br></br>
-        <div className="container">
-          <Switch>
-            <Route exact path="/">
-              {this.renderHomePage()}
-            </Route>
-            <Route
-              path="/cart"
-              render={(props) => (
-                <CartPage
+        
+
+
+        <Switch>
+          <Route exact path="/">
+            {this.renderHomePage()}
+          </Route>
+          <Route
+            path="/cart"
+            render={(props) => (
+              <CartPage
+                {...props}
+                cartUpdated={this.state.cartUpdated}
+                updatedToggler={this.props.updatedToggler}
+                cartUpdatedToggler={() => {
+                  this.props.cartUpdatedToggler();
+                }}
+              />
+            )}
+          />
+          <Route
+            path="/product/:id"
+            render={(props) => {
+              return (
+                <ProductPage
                   {...props}
-                  logged_in={this.state.logged_in}
                   cartUpdated={this.state.cartUpdated}
                   updatedToggler={this.props.updatedToggler}
-                  cartUpdatedToggler={() => {
-                    this.props.cartUpdatedToggler();
-                  }}
+                  cartUpdatedToggler={this.props.cartUpdatedToggler}
                 />
-              )}
-            />
-            <Route
-              path="/product/:id"
-              render={(props) => {
+              );
+            }}
+          />
+          <Route
+            path="/checkout"
+            render={(props) => (
+              <CheckoutPage {...props} />
+            )}
+          />
+          <Route path="/register" component={RegisterPage} />
+          <Route
+            path="/login"
+            render={(props) => {
+              if (this.props.isAuthenticated) {
+                // If user is already logged in, redirect to the homepage
+                return <Redirect to="/" />;
+              } else {
+                // Render the login page
                 return (
-                  <ProductPage
-                    {...props}
-                    logged_in={this.state.logged_in}
-                    updatedToggler={this.props.updatedToggler}
-                    cartUpdatedToggler={this.props.cartUpdatedToggler}
-                  />
+                  <LoginPage {...props}/>
                 );
-              }}
-            />
-            <Route
-              path="/checkout"
-              render={(props) => (
-                <CheckoutPage {...props} logged_in={this.state.logged_in} />
-              )}
-            />
-            <Route path="/register" component={RegisterPage} />
-            <Route
-              path="/login"
-              render={(props) => {
-                if (this.state.logged_in) {
-                  // If user is already logged in, redirect to the homepage
-                  return <Redirect to="/" />;
-                } else {
-                  // Render the login page
-                  return (
-                    <LoginPage {...props} logged_in={this.props.logged_in} />
-                  );
-                }
-              }}
-            />
-            {/* <Route exact path="/activate/:uid/:token" component={Activate} /> */}
-            <Route
-              path="/activate/:uid/:token"
-              render={(props) => {
-                return (
-                  <Activate
-                    {...props}
-                  />
-                );
-              }}
-            />
-            <Route exact path='/reset-password' component={ResetPassword} />
-            <Route
-              path="/password/reset/confirm/:uid/:token"
-              render={(props) => {
-                return (
-                  <ResetPasswordConfirm
-                    {...props}
-                  />
-                );
-              }}
-            />
-          </Switch>
-        </div>
+              }
+            }}
+          />
+          {/* <Route exact path="/activate/:uid/:token" component={Activate} /> */}
+          <Route
+            path="/activate/:uid/:token"
+            render={(props) => {
+              return <Activate {...props} />;
+            }}
+          />
+          <Route exact path="/reset-password" component={ResetPassword} />
+          <Route
+            path="/password/reset/confirm/:uid/:token"
+            render={(props) => {
+              return <ResetPasswordConfirm {...props} />;
+            }}
+          />
+        </Switch>
       </BrowserRouter>
     );
   }
 }
+
+const mapStateToProps = (state) => ({
+  isAuthenticated: state.auth.isAuthenticated,
+  formErrors: state.auth.formErrors,
+});
+
+export default connect(mapStateToProps, null)(Homepage);

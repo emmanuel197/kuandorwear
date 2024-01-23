@@ -10,6 +10,9 @@ from django.db import transaction
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 import json
+from django.db.models import Q
+from .filters import ProductFilter
+from django_filters.rest_framework import DjangoFilterBackend
 # from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -17,6 +20,22 @@ import json
 class ProductListView(generics.ListAPIView):
         queryset = Product.objects.all()
         serializer_class = ProductSerializer
+
+class FilteredProductListView(generics.ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProductFilter
+class ProductSearchView(APIView):
+    def get(self, request, *args, **kwargs):
+        query = self.request.GET.get('q')
+        if query:
+            products = Product.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))
+            print(f'products {products}')
+            serializer = ProductSerializer(products, many=True)
+            print(f'serializer product {serializer.data}')
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response([], status=status.HTTP_200_OK)
 
 class ProductDetailView(generics.RetrieveAPIView):
     serializer_class = ProductSerializer
