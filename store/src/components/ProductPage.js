@@ -2,15 +2,24 @@ import React, { Component } from "react";
 import Product from "./Product";
 import placeHolderImage from "../../static/images/placeholder.png";
 import { getCookie } from "../util";
-import { addCookieItem, handleOrderedItem, cookieCart, addOrRemoveItemHandler } from "../cart";
+import {
+  addCookieItem,
+  handleOrderedItem,
+  cookieCart,
+  addOrRemoveItemHandler,
+} from "../cart";
 import { connect } from "react-redux";
 class ProductPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      product: {},
+      product: [],
+      product_images: [],
+      selectedColor: null,
+      product_sizes: [],
       item_list: [],
       quantity: 0,
+      totalCompletedOrders: 0,
       error: "",
     };
     this.productDetailData = this.productDetailData.bind(this);
@@ -19,7 +28,7 @@ class ProductPage extends Component {
     this.productDetailData();
   }
   async fetchData() {
-    console.log(this.props.isAuthenticated);
+    const itemIdToFind = this.props.match.params.id;
     if (this.props.isAuthenticated) {
       const jwtToken = localStorage.getItem("access");
 
@@ -40,23 +49,31 @@ class ProductPage extends Component {
           }
         })
         .then((data) => {
-          // console.log(data);
-          const itemIdToFind = this.props.match.params.id
-          console.log(itemIdToFind)
-          const item = data.items.find(item => item["id"] == itemIdToFind);
-          console.log(item)
+          console.log(`data: ${data.items}`);
+          // console.log(itemIdToFind)
+          const item = data.items.find((item) => item["id"] == itemIdToFind);
+          console.log(`item: ${item}`)
           this.setState({
-            quantity: item.quantity,
+            quantity: item.quantity ? item.quantity : 0,
+            totalCompletedOrders: item.total_completed_orders
           });
         })
-        .catch((errorData) => console.log(errorData));
+      .catch((errorData) => {
+        console.log(errorData)
+        this.setState({
+        quantity: 0
+      })});
     } else {
-      console.log("cookieCart");
+      // console.log("cookieCart");
       const { items } = await cookieCart.call(this);
+      console.log(items)
+      const item = items.find((item) => item["id"] == itemIdToFind);
+      console.log(`total_completed_orders: ${item.total_completed_orders}`)
       this.setState({
-        quantity: items
+        quantity: item.quantity ? item.quantity : 0,
+        totalCompletedOrders: item.total_completed_orders
       });
-      console.log(items);
+      // console.log(items);
     }
   }
 
@@ -64,17 +81,30 @@ class ProductPage extends Component {
     this.fetchData();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     if (prevProps.cartUpdated !== this.props.cartUpdated) {
       this.fetchData();
     }
     if (prevProps.isAuthenticated !== this.props.isAuthenticated) {
       this.fetchData();
     }
+    if (prevState.product.image !== this.state.product.image) {
+      if (this.state.product_images.length != 0) {
+        const selectedVariant = this.state.product_images.find(
+          (image) => image.image === this.state.product.image
+        );
+        const defaultImage = this.state.product_images.find(
+          (image) => image.default
+        );
+        this.setState({
+          selectedColor: selectedVariant?.color || defaultImage.color,
+        });
+      }
+    }
   }
 
   addToCart(action, product_id) {
-    console.log(this.props.isAuthenticated);
+    // console.log(this.props.isAuthenticated);
     if (this.props.isAuthenticated) {
       handleOrderedItem.call(this, product_id);
     } else {
@@ -83,10 +113,9 @@ class ProductPage extends Component {
   }
 
   updateCart(action, product_id) {
-    
-    console.log(this.props.isAuthenticated);
+    // console.log(this.props.isAuthenticated);
     // this.setState((prevState) => return {...prevState, isAuthenticated: this.props.isAuthenticated})
-    console.log(product_id);
+    // console.log(product_id);
     if (this.props.isAuthenticated) {
       addOrRemoveItemHandler.call(this, action, product_id);
     } else {
@@ -94,26 +123,77 @@ class ProductPage extends Component {
     }
   }
 
-  productDetailData() {
-    console.log("run");
+  async productDetailData() {
+    // console.log("run");
     const id = this.props.match.params.id;
-    console.log(id);
-    fetch(`/api/product/${id}`)
-      .then((response) => {
-        console.log(response);
+    // console.log(id);
+    await fetch(`/api/product/${id}`)
+      .then(async (response) => {
+        // console.log(response);
         if (response.ok) {
-          return response.json();
+          return await response.json();
         } else {
           this.setState({ error: "Product not found" });
         }
       })
       .then((data) => {
-        this.setState({ product: data });
-      })
-      .catch((error) => console.log(error));
+        console.log(data.images);
+        if (data.images.length != 0) {
+          const defaultImage = data.images.find((image) => image.default);
+          console.log(defaultImage);
+          console.log(defaultImage.color);
+          this.setState({
+            product: data,
+            product_images: data.images,
+            product_sizes: data.sizes,
+            selectedColor: defaultImage.color,
+          });
+        } else {
+          this.setState({ product: data, product_sizes: data.sizes });
+        }
+
+        // console.log(data.sizes)
+      });
+    // .catch((error) => console.log(error));
   }
 
   renderProductDetail() {
+    const product_image_variants = this.state.product_images.map(
+      (image_object) => (
+        <a
+          data-fslightbox="mygalley"
+          className="border mx-1 rounded-2 item-thumb"
+          target="_blank"
+          data-type="image"
+        >
+          <img
+            key={image_object.id}
+            width="60"
+            height="60"
+            className="rounded-2"
+            src={image_object.image}
+            style={{ cursor: "pointer"}}
+            onClick={() =>
+              this.setState({
+                product: {
+                  ...this.state.product,
+                  image: image_object.image,
+                  selectedVariant: image_object.image,
+                  selectedColor: image_object.color,
+                },
+              })
+            }
+          />
+        </a>
+      )
+    );
+
+    const product_sizes = this.state.product_sizes.map((sizeObj, index) => (
+      <option key={index}>{sizeObj.size.name}</option>
+    ));
+    // console.log(this.state.product_sizes)
+    console.log(product_sizes);
+
     return (
       // <div className="container mt-5">
       //   <div className="row">
@@ -151,8 +231,6 @@ class ProductPage extends Component {
       //   </div>
       // </div>
       <div>
-        
-       
         <section className="py-5">
           <div className="container">
             <div className="row gx-5">
@@ -166,95 +244,23 @@ class ProductPage extends Component {
                     href="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big.webp"
                   >
                     <img
-                      style={{maxWidth: "100%", maxHeight: "100vh", margin: "auto"}}
+                      style={{
+                        maxWidth: "100%",
+                        maxHeight: "100vh",
+                        margin: "auto",
+                      }}
                       className="rounded-4 fit"
                       src={this.state.product.image}
                     />
                   </a>
                 </div>
                 <div className="d-flex justify-content-center mb-3">
-                  <a
-                    data-fslightbox="mygalley"
-                    className="border mx-1 rounded-2 item-thumb"
-                    target="_blank"
-                    data-type="image"
-                    href="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big1.webp"
-                    
-                  >
-                    <img
-                      width="60"
-                      height="60"
-                      className="rounded-2"
-                      src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big1.webp"
-                    />
-                  </a>
-                  <a
-                    data-fslightbox="mygalley"
-                    className="border mx-1 rounded-2 item-thumb"
-                    target="_blank"
-                    data-type="image"
-                    href="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big2.webp"
-                    
-                  >
-                    <img
-                      width="60"
-                      height="60"
-                      className="rounded-2"
-                      src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big2.webp"
-                    />
-                  </a>
-                  <a
-                    data-fslightbox="mygalley"
-                    className="border mx-1 rounded-2 item-thumb"
-                    target="_blank"
-                    data-type="image"
-                    href="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big3.webp"
-                    
-                  >
-                    <img
-                      width="60"
-                      height="60"
-                      className="rounded-2"
-                      src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big3.webp"
-                    />
-                  </a>
-                  <a
-                    data-fslightbox="mygalley"
-                    className="border mx-1 rounded-2 item-thumb"
-                    target="_blank"
-                    data-type="image"
-                    href="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big4.webp"
-                    
-                  >
-                    <img
-                      width="60"
-                      height="60"
-                      className="rounded-2"
-                      src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big4.webp"
-                    />
-                  </a>
-                  <a
-                    data-fslightbox="mygalley"
-                    className="border mx-1 rounded-2 item-thumb"
-                    target="_blank"
-                    data-type="image"
-                    href="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big.webp"
-                    
-                  >
-                    <img
-                      width="60"
-                      height="60"
-                      className="rounded-2"
-                      src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big.webp"
-                    />
-                  </a>
+                  {product_image_variants}
                 </div>
               </aside>
               <main className="col-lg-6">
                 <div className="ps-lg-3">
-                  <h4 className="title text-dark">
-                  {this.state.product.name}
-                  </h4>
+                  <h4 className="title text-dark">{this.state.product.name}</h4>
                   <div className="d-flex flex-row my-3">
                     <div className="text-warning mb-1 me-2">
                       <i className="fa fa-star"></i>
@@ -265,59 +271,83 @@ class ProductPage extends Component {
                       <span className="ms-1">4.5</span>
                     </div>
                     <span className="text-muted">
-                      <i className="fas fa-shopping-basket fa-sm mx-1"></i>154
-                      orders
+                      <i className="fas fa-shopping-basket fa-sm mx-1"></i>{this.state.totalCompletedOrders}
+                       {this.state.totalCompletedOrders === 1? " order": " orders"}
                     </span>
                     <span className="text-success ms-2">In stock</span>
                   </div>
 
                   <div className="mb-3">
-                    <span className="h5">${this.state.product.price} </span>
-                    <span className="text-muted"><del>$199.99</del></span>
+                    <span className="h5">
+                      ${this.state.product.discount_price}{" "}
+                    </span>
+                    <span className="text-muted">
+                      <del>${this.state.product.price}</del>
+                    </span>
                   </div>
 
-                  <p>
-                  {this.state.product.description}
-                  </p>
+                  <p>{this.state.product.description}</p>
 
                   <div className="row">
                     <dt className="col-3">Type:</dt>
                     <dd className="col-9">Regular</dd>
 
-                    <dt className="col-3">Color</dt>
-                    <dd className="col-9">Brown</dd>
+                    {this.state.selectedColor && <dt className="col-3">Color</dt>}
+                    {this.state.selectedColor && <dd className="col-9">
+                      <dd className="col-9">{this.state.selectedColor}</dd>
+                    </dd>}
 
                     <dt className="col-3">Material</dt>
                     <dd className="col-9">Cotton, Jeans</dd>
 
-                    <dt className="col-3">Brand</dt>
-                    <dd className="col-9">Reebook</dd>
+                    {this.state.product.brand && (
+                      <dt className="col-3">Brand</dt>
+                    )}
+                    {this.state.product.brand && (
+                      <dd className="col-9">{this.state.product.brand}</dd>
+                    )}
                   </div>
 
                   <hr />
 
                   <div className="row mb-4">
-                    <div className="col-md-4 col-6">
+                    {this.state.product_sizes.length != 0 && (
+                      <div className="col-md-4 col-lg-6 col-sm-3 ">
+                        <label className="mb-2">Size</label>
+                        <select
+                          className="form-select border border-secondary"
+                          style={{ height: "35px", width: '100%'}}
+                        >
+                          {product_sizes}
+                        </select>
+                      </div>
+                    )}
+                    {/* <div className="col-md-4 col-6">
                       <label className="mb-2">Size</label>
                       <select
                         className="form-select border border-secondary"
                         style={{height: "35px"}}
                       >
-                        <option>Small</option>
-                        <option>Medium</option>
-                        <option>Large</option>
+                        {product_sizes}
                       </select>
-                    </div>
-
-                    <div className="col-md-4 col-6 mb-3">
+                    </div> */}
+                    <div className="col-md-4 col-lg-6 mb-3">
                       <label className="mb-2 d-block">Quantity</label>
-                      <div className="input-group mb-3" style={{width: "170px"}}>
+                      <div
+                        className="input-group mb-3"
+                        style={{ width: '100%' }}
+                      >
                         <button
                           className="btn btn-white border border-secondary px-3"
                           type="button"
                           id="button-addon1"
                           data-mdb-ripple-color="dark"
-                          onClick={() => {this.updateCart('remove', this.props.match.params.id)}}
+                          onClick={() => {
+                            this.updateCart(
+                              "remove",
+                              this.props.match.params.id
+                            );
+                          }}
                         >
                           <i className="fas fa-minus"></i>
                         </button>
@@ -334,31 +364,36 @@ class ProductPage extends Component {
                           type="button"
                           id="button-addon2"
                           data-mdb-ripple-color="dark"
-                          onClick={() => {this.updateCart('add', this.props.match.params.id)}}
+                          onClick={() => {
+                            this.updateCart("add", this.props.match.params.id);
+                          }}
                         >
                           <i className="fas fa-plus"></i>
                         </button>
                       </div>
                     </div>
                   </div>
-                  <div className="d-flex gap-2">
-                  <a href="#" className="btn btn-warning shadow-0">
-                    {" "}
-                    Buy now{" "}
-                  </a>
-                  <a onClick={() => {
-                  this.addToCart("add", this.props.match.params.id);
-                }} className="btn btn-primary shadow-0">
-                    {" "}
-                    <i className="me-1 fa fa-shopping-basket"></i> Add to cart{" "}
-                  </a>
-                  <a
-                    href="#"
-                    className="btn btn-light border border-secondary py-2 icon-hover px-3"
-                  >
-                    {" "}
-                    <i className="me-1 fa fa-heart fa-lg"></i> Save{" "}
-                  </a>
+                  <div className="row gap-1 align-items-center" style={{ marginLeft: '1px' }}>
+                    <a href="#" className="btn btn-warning shadow-0 col-lg-3">
+                      {" "}
+                      Buy now{" "}
+                    </a>
+                    <a
+                      onClick={() => {
+                        this.addToCart("add", this.props.match.params.id);
+                      }}
+                      className="btn btn-primary shadow-0 col-lg-3"
+                    >
+                      {" "}
+                      <i className="me-1 fa fa-shopping-basket"></i> Add to cart{" "}
+                    </a>
+                    <a
+                      href="#"
+                      className="btn btn-light border border-secondary py-2 icon-hover px-3 col-lg-3"
+                    >
+                      {" "}
+                      <i className="me-1 fa fa-heart fa-lg"></i> Save{" "}
+                    </a>
                   </div>
                 </div>
               </main>
@@ -451,16 +486,16 @@ class ProductPage extends Component {
                         <div className="col-12 col-md-6">
                           <ul className="list-unstyled mb-0">
                             <li>
-                              <i className="fas fa-check text-success me-2"></i>Some
-                              great feature name here
+                              <i className="fas fa-check text-success me-2"></i>
+                              Some great feature name here
                             </li>
                             <li>
                               <i className="fas fa-check text-success me-2"></i>
                               Lorem ipsum dolor sit amet, consectetur
                             </li>
                             <li>
-                              <i className="fas fa-check text-success me-2"></i>Duis
-                              aute irure dolor in reprehenderit
+                              <i className="fas fa-check text-success me-2"></i>
+                              Duis aute irure dolor in reprehenderit
                             </li>
                             <li>
                               <i className="fas fa-check text-success me-2"></i>
@@ -471,12 +506,12 @@ class ProductPage extends Component {
                         <div className="col-12 col-md-6 mb-0">
                           <ul className="list-unstyled">
                             <li>
-                              <i className="fas fa-check text-success me-2"></i>Easy
-                              fast and ver good
+                              <i className="fas fa-check text-success me-2"></i>
+                              Easy fast and ver good
                             </li>
                             <li>
-                              <i className="fas fa-check text-success me-2"></i>Some
-                              great feature name here
+                              <i className="fas fa-check text-success me-2"></i>
+                              Some great feature name here
                             </li>
                             <li>
                               <i className="fas fa-check text-success me-2"></i>
@@ -494,7 +529,9 @@ class ProductPage extends Component {
                         </tr>
                         <tr>
                           <th className="py-2">Processor capacity:</th>
-                          <td className="py-2">2.3GHz dual-core Intel Core i5</td>
+                          <td className="py-2">
+                            2.3GHz dual-core Intel Core i5
+                          </td>
                         </tr>
                         <tr>
                           <th className="py-2">Camera quality:</th>
@@ -562,7 +599,7 @@ class ProductPage extends Component {
                         <a href="#" className="me-3">
                           <img
                             src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/8.webp"
-                            style={{minWidth: "96px", height: "96px"}}
+                            style={{ minWidth: "96px", height: "96px" }}
                             className="img-md img-thumbnail"
                           />
                         </a>
@@ -579,7 +616,7 @@ class ProductPage extends Component {
                         <a href="#" className="me-3">
                           <img
                             src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/9.webp"
-                            style={{minWidth: "96px", height: "96px"}}
+                            style={{ minWidth: "96px", height: "96px" }}
                             className="img-md img-thumbnail"
                           />
                         </a>
@@ -596,7 +633,7 @@ class ProductPage extends Component {
                         <a href="#" className="me-3">
                           <img
                             src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/10.webp"
-                            style={{minWidth: "96px", height: "96px"}}
+                            style={{ minWidth: "96px", height: "96px" }}
                             className="img-md img-thumbnail"
                           />
                         </a>
@@ -613,7 +650,7 @@ class ProductPage extends Component {
                         <a href="#" className="me-3">
                           <img
                             src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/11.webp"
-                            style={{minWidth: "96px", height: "96px"}}
+                            style={{ minWidth: "96px", height: "96px" }}
                             className="img-md img-thumbnail"
                           />
                         </a>
@@ -632,8 +669,6 @@ class ProductPage extends Component {
             </div>
           </div>
         </section>
-
-        
       </div>
     );
   }
@@ -663,6 +698,9 @@ class ProductPage extends Component {
   }
 
   render() {
+    // const images = this.state.product.images;
+    // console.log(images)
+
     if (this.state.error == "") {
       return this.renderProductDetail();
     } else {

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { checkAuthenticated, load_user } from '../actions/auth';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 class Layout extends Component {
     componentDidMount() {

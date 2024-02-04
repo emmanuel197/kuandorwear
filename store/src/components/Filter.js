@@ -7,7 +7,7 @@ class FilterComponent extends Component {
     this.state = {
       query: "",
       minPrice: 20,
-      maxPrice: 300,
+      maxPrice: 400,
       digital: "all",
       products: this.props.products,
     };
@@ -65,7 +65,7 @@ class FilterComponent extends Component {
                 thumbClassName="example-thumb"
                 trackClassName="example-track"
                 min={20}
-                max={300}
+                max={400}
                 pearling
                 minDistance={20}
                 defaultValue={[minPrice, maxPrice]}
@@ -93,7 +93,7 @@ class FilterComponent extends Component {
               </label> */}
               <div className="row">
                 <div className="col-12">
-                  <label>
+                  <label className="d-flex gap-2">
                     <input
                       type="radio"
                       value="all"
@@ -104,7 +104,7 @@ class FilterComponent extends Component {
                   </label>
                 </div>
                 <div className="col-12">
-                  <label>
+                  <label className="d-flex gap-2">
                     <input
                       type="radio"
                       value="true"
@@ -115,7 +115,7 @@ class FilterComponent extends Component {
                   </label>
                 </div>
                 <div className="col-12">
-                  <label>
+                  <label className="d-flex gap-2">
                     <input
                       type="radio"
                       value="false"

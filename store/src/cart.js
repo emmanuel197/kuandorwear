@@ -117,6 +117,7 @@ export async function cookieCart() {
             return data
           })
           .catch(error => console.log(error));
+          console.log(product)
           if (product) {
             const total = product.price * cart[productId].quantity;
 
@@ -129,6 +130,7 @@ export async function cookieCart() {
               price: product.price,
               image: product.image,
               quantity: cart[productId].quantity,
+              total_completed_orders: product.total_completed_orders,
               total: total,
             };
 

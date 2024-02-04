@@ -38,7 +38,7 @@ class Product extends Component {
             className="badge bg-primary position-absolute"
             style={{ top: "10px", right: "10px" }}
           >
-            ${product.price}
+            ${product.discount_price}
           </span>
         </div>
         <div className="box-element product">

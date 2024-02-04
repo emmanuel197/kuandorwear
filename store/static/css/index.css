@@ -178,7 +178,6 @@ h1,h2,h3,h4,h5,h6{
 	cursor: pointer;
 	text-align: center;
 	font-size: 18px;
-	margin-top: 20px;
 	
   }
   #product-detail-button:hover {
@@ -291,4 +290,72 @@ h1,h2,h3,h4,h5,h6{
   
   .icon-hover:hover i {
 	color: #3b71ca !important;
+  }
+
+  .form-outline .form-control {
+    min-height: auto;
+    padding-top: .32rem;
+    padding-bottom: .32rem;
+    padding-left: .75rem;
+    padding-right: .75rem;
+    border: 0;
+    background: rgba(0,0,0,0);
+    transition-duration: 0.4s;
+    transition-timing-function: linear;
+    transition-delay: 0s;
+    transition-property: all;
+}
+
+
+
+
+
+
+
+
+
+
+#reset-password-card {
+	width: 500px;
+}
+
+#reset-password-button {
+	width: 100%;
+  }
+  @media (max-width: 768px) {
+	.d-flex {
+	  display: flex;
+	  flex-wrap: wrap;
+	}
+	#search-button {
+		width: 100%;
+	}
+	#search-wrapper {
+		width: 100%;
+	}
+
+	#reset-password-card {
+		width: 300px;
+	}
+
+	.registration-page-wrapper .register-form-container {
+		padding: 5px !important;
+	}
+  }
+
+ 
+
+  @media (max-width: 300px) {
+	#reset-password-card {
+		width: 200px;
+	}
+
+	.card-body{
+		padding:  5px;
+		margin: 0px;
+	}
+
+	/* #reset-password-button {
+		width: 90%;
+	} */
   }

@@ -99,6 +99,9 @@ class CartDataView(APIView):
         order, order_created = Order.objects.get_or_create(customer=customer, complete=False)
         # print(f'order {order}')
         items = order.orderitem_set.all()
+        
+        if len(items) == 0:
+            return Response({"QUERY ERROR: No Such Order Item Exists"}, status=status.HTTP_404_NOT_FOUND)
         # print(f'items {items}')
         item_list = []
         for item in items:
@@ -108,7 +111,8 @@ class CartDataView(APIView):
                 'price': item.product.price,
                 'image': item.product.image.url,
                 'quantity': item.quantity,
-                'total': item.get_total
+                'total': item.get_total,
+                'total_completed_orders': item.product.get_completed
             })
 
             cart_data = {
@@ -139,8 +143,8 @@ class updateCartView(APIView):
         customer = Customer.objects.filter(user=request.user).first()
         # else:
             # customer = Customer.objects.filter(customer_id=self.request.session.session_key).first()
-        order = Order.objects.filter(customer=customer, complete=False).first()
-        order_item = OrderItem.objects.filter(order=order, product=product).first()
+        order, order_created  = Order.objects.get_or_create(customer=customer, complete=False)
+        order_item, order_item_created = OrderItem.objects.get_or_create(order=order, product=product)
 
         if 'add' == action:
             order_item.quantity += 1
@@ -151,6 +155,7 @@ class updateCartView(APIView):
                 order_item.delete()
             else:
                 order_item.save()
+        print(f'quantity {order_item.quantity}')
         return Response({'message': 'Cart updated successfully'}, status=status.HTTP_200_OK)
     
 

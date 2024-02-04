@@ -7,6 +7,7 @@ import LoginPage from "./LoginPage";
 import Activate from "./Activate";
 import ResetPassword from "./ResetPassword";
 import ResetPasswordConfirm from "./ResetPasswordConfirm";
+import Google from "./Google";
 import { getCookie } from "../util";
 // import NavBar from "./Navbar";
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
@@ -16,6 +17,8 @@ import SearchComponent from "./SearchComponent";
 import FilterComponent from "./Filter";
 import heroImg from "../../static/images/pexels-albin-biju-6717680.jpg";
 import { connect } from "react-redux";
+import Footer from "./Footer";
+import Facebook from "./Facebook";
 class Homepage extends Component {
   constructor(props) {
     super(props);
@@ -186,7 +189,10 @@ class Homepage extends Component {
               return <ResetPasswordConfirm {...props} />;
             }}
           />
+          <Route exact path="/google" component={Google}/>
+          <Route path="/facebook" component={Facebook}/>
         </Switch>
+        <Footer />
       </BrowserRouter>
     );
   }

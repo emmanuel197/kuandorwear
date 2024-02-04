@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'store.apps.StoreConfig',
     'api.apps.ApiConfig',
     'rest_framework',
+    'social_django',
     'djoser',
     'accounts',
     'rest_framework_simplejwt',
@@ -61,6 +62,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -127,14 +130,14 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PERMISSION_CLASSES': [
         # 'rest_framework.permissions.IsAuthenticated'
     # ],    
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
-    # ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
 }
 
 AUTHENTICATION_BACKENDS = (
-    # 'social_core.backends.google.GoogleOAuth2',
-    # 'social_core.backends.facebook.FacebookOAuth2',
+    'social_core.backends.google.GoogleOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
     'django.contrib.auth.backends.ModelBackend',
     # 'rest_framework_simplejwt.backends.JWTAuthentication',
 )
@@ -160,8 +163,8 @@ DJOSER = {
     'USERNAME_RESET_CONFIRM_URL': 'email/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': 'activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
-    # 'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
-    # 'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': ['http://localhost:8000/google', 'http://localhost:8000/facebook'],
+    'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
+    'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': ['http://localhost:8000/google', 'http://localhost:8000', 'http://localhost:8000/facebook'],
     'SERIALIZERS': {
         'user_create': 'accounts.serializers.UserCreateSerializer',
         'user': 'accounts.serializers.UserCreateSerializer',
@@ -178,4 +181,16 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'store/static')
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '278766194993-hbqopkao2v4qdifl0hrdsc5i2nn4hut9.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile', 'openid']
+SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = ['first_name', 'last_name']
+
+SOCIAL_AUTH_FACEBOOK_KEY = '1576683156431993'
+SOCIAL_AUTH_FACEBOOK_SECRET = '569acb80192681573d481d5291a4881c'
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+    'fields': 'email, first_name, last_name'
+}
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

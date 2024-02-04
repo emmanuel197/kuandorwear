@@ -8,7 +8,8 @@ class RegisterPage extends Component {
       username: "",
       password1: "",
       password2: "",
-      name: "",
+      first_name: "",
+      last_name: "",
       email: "",
       accountCreated: false,
       showError: false
@@ -60,47 +61,67 @@ async register() {
       <div className="registration-page-wrapper mt-5">
         <div className="box-element" style={styles}>
           <div className="register-form-container">
-            <input
-              className="register-form-input"
+          <div className="form-outline mb-4">
+          <input
+              className="form-control"
               type="text"
               name="username"
               placeholder="Username"
               onChange={this.handleChange}
               value={this.state.username}
             />
+          </div>
+          <div className="form-outline mb-4">
             <input
-              className="register-form-input"
+              className="form-control"
               type="email"
               name="email"
               placeholder="Email"
               onChange={this.handleChange}
               value={this.state.email}
             />
+            </div>
+            <div className="form-outline mb-4">
             <input
-              className="register-form-input"
+              className="form-control"
               type="password"
               name="password1"
               placeholder="Password"
               onChange={this.handleChange}
               value={this.state.password1}
             />
+            </div>
+            <div className="form-outline mb-4">
             <input
-              className="register-form-input"
+              className="form-control"
               type="password"
               name="password2"
               placeholder="Confirm Password"
               onChange={this.handleChange}
               value={this.state.password2}
             />
+            </div>
+            <div className="form-outline mb-4">
             <input
-              className="register-form-input"
+              className="form-control"
               type="text"
-              name="name"
-              placeholder="Name"
+              name="first_name"
+              placeholder="First Name"
               onChange={this.handleChange}
-              value={this.state.name}
+              value={this.state.first_name}
             />
-            <button id="register-submit-button" onClick={this.register}>
+            </div>
+            <div className="form-outline mb-4">
+            <input
+              className="form-control"
+              type="text"
+              name="last_name"
+              placeholder="Last Name"
+              onChange={this.handleChange}
+              value={this.state.last_name}
+            />
+            </div>
+            <button className="mb-2" id="register-submit-button" onClick={this.register}>
               Register
             </button>
             <p className="message">
