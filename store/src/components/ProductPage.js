@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import Product from "./Product";
-import placeHolderImage from "../../static/images/placeholder.png";
+// import Product from "./Product";
+// import placeHolderImage from "../../static/images/placeholder.png";
 import { getCookie } from "../util";
 import {
   addCookieItem,
@@ -219,7 +219,7 @@ class ProductPage extends Component {
                     className="rounded-4"
                     target="_blank"
                     data-type="image"
-                    href="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/detail1/big.webp"
+                    href="#"
                   >
                     <img
                       style={{

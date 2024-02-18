@@ -49,32 +49,32 @@ class Footer extends Component {
                                     <h6 className="text-uppercase fw-bold">Products</h6>
                                     <hr className="mb-4 mt-0 d-inline-block mx-auto" style={{ width: '60px',  height: '2px' }} />
                                     <p>
-                                        <a href="#!" className="text-white">T-Shirt</a>
+                                        <a href="#!" className="text-white footer-link">T-Shirt</a>
                                     </p>
                                     <p>
-                                        <a href="#!" className="text-white">Watch</a>
+                                        <a href="#!" className="text-white footer-link">Watch</a>
                                     </p>
                                     <p>
-                                        <a href="#!" className="text-white">Project Source Code</a>
+                                        <a href="#!" className="text-white footer-link">Project Source Code</a>
                                     </p>
                                     <p>
-                                        <a href="#!" className="text-white">Headphones</a>
+                                        <a href="#!" className="text-white footer-link">Headphones</a>
                                     </p>
                                 </div>
                                 <div className="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
                                     <h6 className="text-uppercase fw-bold">Useful links</h6>
                                     <hr className="mb-4 mt-0 d-inline-block mx-auto" style={{ width: '60px', height: '2px' }} />
                                     <p>
-                                        <a href="/cart" className="text-white">Cart</a>
+                                        <a href="/cart" className="text-white footer-link">Cart</a>
                                     </p>
                                     <p>
-                                        <a href="/checkout" className="text-white">Checkout</a>
+                                        <a href="/checkout" className="text-white footer-link">Checkout</a>
                                     </p>
                                     <p>
-                                        <a href="/about" className="text-white">About Us</a>
+                                        <a href="/about" className="text-white footer-link">About Us</a>
                                     </p>
                                     <p>
-                                        <a href="#!" className="text-white">Help</a>
+                                        <a href="#!" className="text-white footer-link">Help</a>
                                     </p>
                                 </div>
                                 <div className="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">

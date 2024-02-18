@@ -85,6 +85,7 @@ class FilterComponent extends Component {
   renderButton(id) {
     return (
       <button
+      id="accordion-btn"
         className="btn ml-auto"
         type="button"
         onClick={() => this.toggleCollapse(id)}
@@ -143,7 +144,7 @@ class FilterComponent extends Component {
           </div> */}
         </div>
         <div class="box border-bottom">
-          <div class="box-label text-uppercase d-flex align-items-center">
+          <div class="box-label text-uppercase d-flex align-items-center justify-content-between">
             Product Type
             {this.renderButton("product type")}
           </div>
@@ -230,7 +231,7 @@ class FilterComponent extends Component {
           </div>}
         </div>
           <div class="box">
-            <div class="box-label text-uppercase d-flex align-items-center">
+            <div class="box-label text-uppercase d-flex align-items-center justify-content-between">
               price
               {this.renderButton("price")}
             </div>

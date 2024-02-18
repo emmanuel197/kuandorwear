@@ -611,8 +611,8 @@ body{
 
 #product-badge {
   background-color: var(--background2);
-  width: 60px;
-  height: 20px;
+  width:  3.75rem;
+  height: 1.25rem;
   font-weight: 900;
   padding: auto; 
 }
@@ -832,6 +832,11 @@ footer hr {
 	
 }
 
+footer .footer-link:hover {
+	color: var(--background2) !important;
+	transition: all 0.5s ease;
+}
+
 
 @media (max-width: 300px) {
 	#reset-password-card {
@@ -969,24 +974,24 @@ label {
     cursor: pointer
 }
 
-.tick {
+/* .tick {
     display: block;
     position: relative;
     padding-left: 23px;
     cursor: pointer;
     font-size: 0.9rem;
     margin: 0
-}
+} */
 
-.tick input {
+/* .tick input {
     position: absolute;
     opacity: 0;
     cursor: pointer;
     height: 0;
     width: 0
-}
+} */
 
-.check {
+/* .check {
     position: absolute;
     top: 1px;
     left: 0;
@@ -999,11 +1004,11 @@ label {
 
 .tick:hover input~.check {
     background-color: #f3f3f3
-}
+} */
 
-.tick input:checked~.check {
+/* .tick input:checked~.check {
     background-color: #ffffff
-}
+} */
 
 /* .check:after {
     content: "";
@@ -1011,12 +1016,12 @@ label {
     display: none
 } */
 
-.tick input:checked~.check:after {
+/* .tick input:checked~.check:after {
     display: block;
     transform: rotate(45deg) scale(1)
-}
+} */
 
-.tick .check:after {
+/* .tick .check:after {
     left: 6px;
     top: 2px;
     width: 5px;
@@ -1024,10 +1029,11 @@ label {
     border: solid rgb(0, 0, 0);
     border-width: 0 3px 3px 0;
     transform: rotate(45deg) scale(2)
-}
-
-
+} */
 
 .form-group {
     margin-bottom: 1rem;
+}
+#accordion-btn:focus {
+    box-shadow: none;
 }
