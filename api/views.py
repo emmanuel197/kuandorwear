@@ -13,6 +13,9 @@ import json
 from django.db.models import Q
 from .filters import ProductFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 # from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -157,7 +160,14 @@ class updateCartView(APIView):
                 order_item.save()
         print(f'quantity {order_item.quantity}')
         return Response({'message': 'Cart updated successfully'}, status=status.HTTP_200_OK)
-    
+
+def send_purchase_confirmation_email(user_email, user_info, shipping_info, total):
+    subject = 'Purchase Confirmation'
+    html_message = render_to_string('purchase_confirmation_email.html', {'user_info': user_info, 'shipping_info': shipping_info, 'total': total})
+    plain_message = strip_tags(html_message)
+    from_email = 'eamokuandoh@gmail.com'  # Update with your email
+    to = user_email
+    send_mail(subject, plain_message, from_email, [to], html_message=html_message) 
 
 class ProcessOrderView(APIView):
     permission_classes = [ IsAuthenticated ]
@@ -167,17 +177,6 @@ class ProcessOrderView(APIView):
         shipping_info = request.data.get('shipping_info')
         total = request.data.get('total')
         
-
-        # print(request.user)
-        
-        # Check if the user is authenticated
-        # if not request.user.is_authenticated:
-        #     customer, created = Customer.objects.get_or_create(customer_id=self.request.session.session_key)
-        #     customer.name = name
-        #     customer.email = email
-        #     customer.save()
-        #     order, created = Order.objects.get_or_create(customer=customer)
-        # else:
         customer = request.user.customer
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
 
@@ -204,6 +203,8 @@ class ProcessOrderView(APIView):
             zipcode=shipping_info['zipcode'],
             country=shipping_info['country']
             )
+        send_purchase_confirmation_email(request.user.email, user_info, shipping_info, total)
+
         
         return Response({'order_status': order.complete}, status=status.HTTP_200_OK)
 

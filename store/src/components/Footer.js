@@ -9,8 +9,8 @@ class Footer extends Component {
     }
     render() {
         return (
-                <footer className="text-center text-lg-start text-white mt-5" style={{ backgroundColor: '#1c2331' }}>
-                    <section className="d-flex justify-content-between p-4" style={{ backgroundColor: '#6351ce' }}>
+                <footer className="text-center text-lg-start text-white mt-5">
+                    <section id="footer-section-1" className="d-flex justify-content-between p-4" >
                         <div className="me-5">
                             <span>Get connected with us on social networks:</span>
                         </div>
@@ -40,38 +40,38 @@ class Footer extends Component {
                             <div className="row mt-3">
                                 <div className="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
                                     <h6 className="text-uppercase fw-bold">KuandorWear</h6>
-                                    <hr className="mb-4 mt-0 d-inline-block mx-auto" style={{ width: '60px', backgroundColor: '#7c4dff', height: '2px' }} />
+                                    <hr className="mb-4 mt-0 d-inline-block mx-auto" style={{ width: '60px',  height: '2px' }} />
                                     <p>
-                                        Here you can use rows and columns to organize your footer content. Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                                    Shop stylish and comfortable attire, perfect for every occasion. Whether you’re looking for trendy outfits or timeless classics, we’ve got you covered. Explore our curated collection and elevate your wardrobe today.
                                     </p>
                                 </div>
                                 <div className="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
                                     <h6 className="text-uppercase fw-bold">Products</h6>
-                                    <hr className="mb-4 mt-0 d-inline-block mx-auto" style={{ width: '60px', backgroundColor: '#7c4dff', height: '2px' }} />
+                                    <hr className="mb-4 mt-0 d-inline-block mx-auto" style={{ width: '60px',  height: '2px' }} />
                                     <p>
-                                        <a href="#!" className="text-white">MDBootstrap</a>
+                                        <a href="#!" className="text-white">T-Shirt</a>
                                     </p>
                                     <p>
-                                        <a href="#!" className="text-white">MDWordPress</a>
+                                        <a href="#!" className="text-white">Watch</a>
                                     </p>
                                     <p>
-                                        <a href="#!" className="text-white">BrandFlow</a>
+                                        <a href="#!" className="text-white">Project Source Code</a>
                                     </p>
                                     <p>
-                                        <a href="#!" className="text-white">Bootstrap Angular</a>
+                                        <a href="#!" className="text-white">Headphones</a>
                                     </p>
                                 </div>
                                 <div className="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
                                     <h6 className="text-uppercase fw-bold">Useful links</h6>
-                                    <hr className="mb-4 mt-0 d-inline-block mx-auto" style={{ width: '60px', backgroundColor: '#7c4dff', height: '2px' }} />
+                                    <hr className="mb-4 mt-0 d-inline-block mx-auto" style={{ width: '60px', height: '2px' }} />
                                     <p>
-                                        <a href="#!" className="text-white">Your Account</a>
+                                        <a href="/cart" className="text-white">Cart</a>
                                     </p>
                                     <p>
-                                        <a href="#!" className="text-white">Become an Affiliate</a>
+                                        <a href="/checkout" className="text-white">Checkout</a>
                                     </p>
                                     <p>
-                                        <a href="#!" className="text-white">Shipping Rates</a>
+                                        <a href="/about" className="text-white">About Us</a>
                                     </p>
                                     <p>
                                         <a href="#!" className="text-white">Help</a>
@@ -79,7 +79,7 @@ class Footer extends Component {
                                 </div>
                                 <div className="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
                                     <h6 className="text-uppercase fw-bold">Contact</h6>
-                                    <hr className="mb-4 mt-0 d-inline-block mx-auto" style={{ width: '60px', backgroundColor: '#7c4dff', height: '2px' }} />
+                                    <hr className="mb-4 mt-0 d-inline-block mx-auto" style={{ width: '60px', height: '2px' }} />
                                     <p><i className="fas fa-home mr-3"></i> New York, NY 10012, US</p>
                                     <p><i className="fas fa-envelope mr-3"></i> eamokuandoh@gmail.com</p>
                                     <p><i className="fas fa-phone mr-3"></i> + 233 683 6242</p>
@@ -89,7 +89,7 @@ class Footer extends Component {
                         </div>
                     </section>
                     <div className="text-center p-3" style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
-                        © 2020 MDBootstrap.com
+                        © 2024 KuandorWear.com
                     </div>
                 </footer>
     )}

@@ -13,5 +13,5 @@ urlpatterns = [
     path('google/', index),
     path('facebook', index),
     path('password/reset/confirm/<str:uid>/<str:token>', index),
-
+    path('about', index),
 ]

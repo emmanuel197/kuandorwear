@@ -9,8 +9,7 @@ import ResetPassword from "./ResetPassword";
 import ResetPasswordConfirm from "./ResetPasswordConfirm";
 import Google from "./Google";
 import { getCookie } from "../util";
-// import NavBar from "./Navbar";
-import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
+import { BrowserRouter, Switch, Route, Redirect} from "react-router-dom";
 import Product from "./Product";
 import Layout from "../hocs/Layout";
 import SearchComponent from "./SearchComponent";
@@ -19,17 +18,22 @@ import heroImg from "../../static/images/pexels-albin-biju-6717680.jpg";
 import { connect } from "react-redux";
 import Footer from "./Footer";
 import Facebook from "./Facebook";
+import Hero from "./Hero";
+import AboutPage from "./AboutPage";
 class Homepage extends Component {
   constructor(props) {
     super(props);
+    this.productsSection = React.createRef();
     this.renderHomePage = this.renderHomePage.bind(this);
     this.state = {
       products: [],
-      cartUpdated: this.props.cartUpdated
+      cartUpdated: this.props.cartUpdated,
     };
     this.fetchData = this.fetchData.bind(this);
     this.productToggler = this.productToggler.bind(this);
+    this.scrollToProducts = this.scrollToProducts.bind(this);
   }
+  
 
   productToggler(data) {
     console.log(`home:product ${data}`);
@@ -38,8 +42,8 @@ class Homepage extends Component {
     });
   }
 
-  fetchData() {
-    fetch("/api/products", {
+ async fetchData() {
+   await fetch("/api/products", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -58,30 +62,23 @@ class Homepage extends Component {
     if (prevProps.cartUpdated !== this.props.cartUpdated) {
       this.setState({ cartUpdated: this.props.cartUpdated });
     }
-    // if (prevState.products !== this.state.products) {
-    //   this.fetchData()
-    // }
   }
+
+  scrollToProducts = () => {
+    this.productsSection.current.scrollIntoView({ behavior: 'smooth' });
+  };
+
   renderHomePage() {
     console.log(this.state.products);
     console.log(heroImg);
     return (
       <div>
-        <div
-          className="hero-section mb-5"
-          style={{
-            backgroundImage: `url(${heroImg})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <h1 style={{ color: "#92ecf6" }}>Welcome to Our Store</h1>
-          <p>Explore our collection of amazing products.</p>
-        </div>
-        <div className="container">
+        
+       <Hero scrollToProducts={this.scrollToProducts}/>
+        <div className="container mt-5">
           <div className="row">
             <div className="col-lg-4">
-              <p className="navbar-brand mb-4">Filter</p>
+              <h2 className="mb-4">Filter</h2>
               <FilterComponent
                 products={this.state.products}
                 productToggler={(data) => {
@@ -96,8 +93,8 @@ class Homepage extends Component {
                   this.productToggler(data);
                 }}
               />
-              <div className="row">
-                {this.state.products.map((product) => (
+              <div id="products-section" ref={this.productsSection} className="row justify-content-md-center">
+                {this.state.products && this.state.products.map((product) => (
                   <Product
                     key={product.id}
                     product={product}
@@ -105,6 +102,7 @@ class Homepage extends Component {
                     updatedToggler={this.props.updatedToggler}
                   />
                 ))}
+                {this.state.products && console.log(this.state.products)}
               </div>
             </div>
           </div>
@@ -121,8 +119,6 @@ class Homepage extends Component {
           cartUpdated={this.state.cartUpdated}
           cartUpdatedToggler={this.props.cartUpdatedToggler}
         />
-        
-
 
         <Switch>
           <Route exact path="/">
@@ -156,11 +152,10 @@ class Homepage extends Component {
           />
           <Route
             path="/checkout"
-            render={(props) => (
-              <CheckoutPage {...props} />
-            )}
+            render={(props) => <CheckoutPage {...props} />}
           />
           <Route path="/register" component={RegisterPage} />
+          <Route path="/about" component={AboutPage} />
           <Route
             path="/login"
             render={(props) => {
@@ -169,13 +164,11 @@ class Homepage extends Component {
                 return <Redirect to="/" />;
               } else {
                 // Render the login page
-                return (
-                  <LoginPage {...props}/>
-                );
+                return <LoginPage {...props} />;
               }
             }}
           />
-          {/* <Route exact path="/activate/:uid/:token" component={Activate} /> */}
+          
           <Route
             path="/activate/:uid/:token"
             render={(props) => {
@@ -189,8 +182,8 @@ class Homepage extends Component {
               return <ResetPasswordConfirm {...props} />;
             }}
           />
-          <Route exact path="/google" component={Google}/>
-          <Route path="/facebook" component={Facebook}/>
+          <Route exact path="/google" component={Google} />
+          <Route path="/facebook" component={Facebook} />
         </Switch>
         <Footer />
       </BrowserRouter>

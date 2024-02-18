@@ -1,29 +1,33 @@
 import React, { Component } from "react";
-import arrowUp from "../../static/images/arrow-up.png";
-import arrowDown from "../../static/images/arrow-down.png";
-import placeHolderImage from "../../static/images/placeholder.png";
+
 export default class CheckoutProduct extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
-
     return (
-        <div className="cart-row">
-            <div style={{ flex: "2" }}>
-            <img className="row-image" src={this.props.image} />
+      <div className="row gy-2">
+        <div class="col-lg-6 col-md-6 col-6">
+          <div class="row mb-2">
+            <div class="col-lg-6 col-md-6 col-12 d-flex justify-content-center">
+              <img class="row-image" src={this.props.image} />
             </div>
-            <div style={{ flex: "2" }}>
-            <p>{this.props.name}</p>
+            <div class="col-lg-6 col-md-6 col-12 d-flex align-items-center justify-content-center">
+              <p>{this.props.name}</p>
             </div>
-            <div style={{ flex: "1" }}>
-            <p>${this.props.total}</p>
-            </div>
-            <div style={{ flex: "1" }}>
-            <p>x{this.props.quantity}</p>
-            </div>
+          </div>
         </div>
-        );
+        <div class="col-lg-6 col-md-6 col-6 d-flex justify-content-around align-items-center">
+          <p>${this.props.total}</p>
+
+          <p>x{this.props.quantity}</p>
+        </div>
+
+        <div className="px-3">
+          <hr />
+        </div>
+      </div>
+    );
   }
 }

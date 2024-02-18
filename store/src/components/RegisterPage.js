@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { signup } from "../actions/auth";
 import { connect } from "react-redux";
+import AlertContext from './AlertContext';
 class RegisterPage extends Component {
   constructor(props) {
     super(props);
@@ -34,6 +35,8 @@ class RegisterPage extends Component {
     this.setState({ showError: false });
   };
 
+static contextType = AlertContext;
+
 async register() {
      await this.props.signup(
         this.state.username,
@@ -42,6 +45,7 @@ async register() {
         this.state.password2,
         this.state.name
       )
+      this.context.setAlertMessage('You have successfully signed up! Check your email to verify your account.');
       console.log(this.props.formErrors)
     if (this.props.formErrors == null) {
       this.setState({ accountCreated: true });
@@ -137,8 +141,8 @@ async register() {
                 ))}
                 <button
                   type="button"
-                  className="close"
-                  data-dismiss="alert"
+                  className="btn-close"
+                  data-bs-dismiss="alert"
                   aria-label="Close"
                   onClick={this.handleClose}
                 >

@@ -1,10 +1,11 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
 import cartIcon from "../../static/images/cart.png";
 import { logout } from "../actions/auth";
 import { connect } from "react-redux";
 import { getCookie } from "../util";
 import { cookieCart } from "../cart";
+import kuandohWearLogo from "../../static/images/KuandorWear-logo4.png";
+import AlertContext from './AlertContext';
 class NavBar extends Component {
   constructor(props) {
     super(props);
@@ -12,7 +13,6 @@ class NavBar extends Component {
       totalItems: 0,
       orderComplete: this.props.orderComplete,
       cartUpdated: this.props.cartUpdated,
-
     };
     this.logOutHandler = this.logOutHandler.bind(this);
     this.fetchData = this.fetchData.bind(this);
@@ -40,17 +40,16 @@ class NavBar extends Component {
           }
         })
         .then((data) => {
-          // console.log(data);
           this.setState({
             totalItems: this.state.orderComplete ? 0 : data.total_items,
           });
         })
         .catch((errorData) => {
-            console.log(errorData)
-            this.setState({
-            totalItems: 0
-          })})
-        ;
+          console.log(errorData);
+          this.setState({
+            totalItems: 0,
+          });
+        });
     } else {
       console.log("cookieCart");
       const { total_items } = await cookieCart.call(this);
@@ -67,7 +66,6 @@ class NavBar extends Component {
   componentDidUpdate(prevProps) {
     // Check if the 'logged_in' prop has changed
     if (this.props.cart_total_updated) {
-      // console.log("yeah");
       this.fetchData();
       this.props.updatedToggler();
     }
@@ -84,77 +82,123 @@ class NavBar extends Component {
     this.props.logout();
     this.props.history.push("/");
   }
-  render() {
-    const username = this.props.user ? this.props.user.username : 'Guest';
-    const capitalizedUsername = username.charAt(0).toUpperCase() + username.slice(1);
-    console.log(capitalizedUsername);
-    // console.log(this.props.user.username);
-    return (
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-        <a className="navbar-brand " href="/">
-          KuandorWear
-        </a>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-        {/* <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button> */}
 
-        <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item">
-              <a className="nav-link active" aria-current="page" href="/">
-                Store
-              </a>
-            </li>
-          </ul>
-          <div className="d-flex align-items-center">
-            <span className="me-2">Welcome, {capitalizedUsername}!</span>
-            {this.props.isAuthenticated ? (
-              <a
+  static contextType = AlertContext;
+  
+  render() {
+    const username = this.props.user ? this.props.user.username : "Guest";
+    const capitalizedUsername = username.charAt(0).toUpperCase() + username.slice(1);
+    const { alertMessage, setAlertMessage } = this.context;
+    
+    
+    return (
+      <div>
+        <nav className="store-nav">
+      <div className="wrapper">
+        <div className="logo"><a href="/"><img src={kuandohWearLogo}/></a></div>
+        <input type="radio" name="slider" id="menu-btn"/>
+        <input type="radio" name="slider" id="close-btn"/>
+        <ul className="nav-links">
+          <label for="close-btn" className="btn close-btn"><i class="fas fa-times"></i></label>
+          <li><a href="/">Store</a></li>
+          <li><a href="/about">About</a></li>
+          {this.props.isAuthenticated ? (
+              <li><a
                 href="/"
-                id="btn"
-                className="btn btn-warning"
                 onClick={this.logOutHandler}
               >
                 Logout
-              </a>
+              </a></li>
             ) : (
-              <a href="/login" className="btn btn-warning">
-                Login
-              </a>
+              <li><a href="/login">Login</a></li>
             )}
-            <a href="/cart">
-              <img id="cart-icon" src={cartIcon} />
-            </a>
-            <p id="cart-total">{this.state.totalItems}</p>
-          </div>
+         
+          {/* <li>
+            <a href="#" className="desktop-item">Dropdown Menu</a>
+            <input type="checkbox" id="showDrop"/>
+            <label for="showDrop" className="mobile-item">Dropdown Menu</label>
+            <ul class="drop-menu">
+              <li><a href="#">Drop menu 1</a></li>
+              <li><a href="#">Drop menu 2</a></li>
+              <li><a href="#">Drop menu 3</a></li>
+              <li><a href="#">Drop menu 4</a></li>
+            </ul>
+          </li> */}
+          {/* <li>
+            <a href="#" class="desktop-item">Mega Menu</a>
+            <input type="checkbox" id="showMega"/>
+            <label for="showMega" class="mobile-item">Mega Menu</label>
+            <div class="mega-box">
+              <div class="content">
+                <div class="row">
+                  <img src="https://fadzrinmadu.github.io/hosted-assets/responsive-mega-menu-and-dropdown-menu-using-only-html-and-css/img.jpg" alt=""/>
+                </div>
+                <div class="row">
+                  <header>Design Services</header>
+                  <ul class="mega-links">
+                    <li><a href="#">Graphics</a></li>
+                    <li><a href="#">Vectors</a></li>
+                    <li><a href="#">Business cards</a></li>
+                    <li><a href="#">Custom logo</a></li>
+                  </ul>
+                </div>
+                <div class="row">
+                  <header>Email Services</header>
+                  <ul class="mega-links">
+                    <li><a href="#">Personal Email</a></li>
+                    <li><a href="#">Business Email</a></li>
+                    <li><a href="#">Mobile Email</a></li>
+                    <li><a href="#">Web Marketing</a></li>
+                  </ul>
+                </div>
+                <div class="row">
+                  <header>Security services</header>
+                  <ul class="mega-links">
+                    <li><a href="#">Site Seal</a></li>
+                    <li><a href="#">VPS Hosting</a></li>
+                    <li><a href="#">Privacy Seal</a></li>
+                    <li><a href="#">Website design</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </li> */}
+          <li>
+            <a href="/cart" id="cart-link">
+              
+                <img id="cart-icon" src={cartIcon}/>
+                <p id="cart-total" className="badge align-text-center">{this.state.totalItems}</p>
+                
+                </a>
+                
+                
+          </li>
+        </ul>
+        <label for="menu-btn" class="btn menu-btn"><i class="fas fa-bars"></i></label>
+      </div>
+      
+        </nav>
+        {alertMessage && (
+          <div className="alert btn-color alert-dismissible fade show mb-0" role="alert">
+          {alertMessage}
+          <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-      </nav>
+      )}
+      {/* {alertMessage && (console.log(`nav:message:${alertMessage}`))} */}
+    {/* {alertMessage && setAlertMessage(null)} */}
+    </div>
+     
+    
+
+    
+    
     );
   }
 }
 
 const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
-  user: state.auth.user
+  user: state.auth.user,
 });
 
 export default connect(mapStateToProps, { logout })(NavBar);

@@ -27,3 +27,6 @@ api/__pycache__
 api/migrations
 store/src/index.js
 store/static/frontend/main.js.LICENSE.txt
+store/static/frontend/main.js
+accounts/__pycache__
+accounts/migrations

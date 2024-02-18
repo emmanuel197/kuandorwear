@@ -28,14 +28,15 @@ class Product extends Component {
 
     const { product } = this.props;
     return (
-      <div className="col-lg-4 product-col">
+      <div className="col-lg-4 col-md-5 product-col">
+        <div id="product-wrapper" className="rounded-3">
         <div className="position-relative">
           <div className="image-container">
             <img className="thumbnail" src={product.image} />
           </div>
           <span
             id="product-badge"
-            className="badge bg-primary position-absolute"
+            className="badge  position-absolute"
             style={{ top: "10px", right: "10px" }}
           >
             ${product.discount_price}
@@ -46,9 +47,10 @@ class Product extends Component {
             <strong>{product.name}</strong>
           </h6>
           <hr />
-          <div className="d-flex">
+          <div className="row px-2">
             <button
-              className="btn btn-outline-secondary add-btn me-auto"
+              id="product-add-to-cart"
+              className="col-7 btn btn-outline-secondary add-btn me-auto"
               onClick={() => {
                 this.addToCart("add", product.id);
               }}
@@ -57,13 +59,16 @@ class Product extends Component {
             </button>
 
             <Link
-              className="btn btn-outline-success"
+              id="product-view-btn"
+              className="col-4 btn"
               to={`/product/${product.id}`}
             >
               View
             </Link>
           </div>
         </div>
+        </div>
+        
       </div>
     );
   }

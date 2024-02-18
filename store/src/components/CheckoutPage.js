@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import placeHolderImage from "../../static/images/placeholder.png";
 import CheckoutProduct from "./CheckoutProduct";
 import { connect } from "react-redux";
 import { getCookie } from "../util";
@@ -79,7 +78,6 @@ class CheckoutPage extends Component {
     }
   }
   componentDidMount() {
-    // console.log(this.state.orderComplete)
     this.fetchData();
   }
 
@@ -114,9 +112,6 @@ class CheckoutPage extends Component {
           window.location.href = data.redirect;
         } else {
           console.log(data.order_status);
-          // if (data.order_status) {
-          //   this.props.orderStatusToggler()
-          // }
           window.location.replace("/");
         }
       })
@@ -163,7 +158,6 @@ class CheckoutPage extends Component {
     const processOrder = this.processOrder;
     const unAuthProcessOrder = this.unAuthProcessOrder;
     const isAuthenticated = this.props.isAuthenticated;
-    // console.log(`paypal:isauthenticated: ${this.props.isAuthenticated}`)
 
     paypal
       .Buttons({
@@ -172,8 +166,7 @@ class CheckoutPage extends Component {
           shape: "rect",
         },
         // Call your server to set up the transaction
-        createOrder: function (data, actions) {
-          // console.log(`paypal:isauthenticated: ${this.props.isAuthenticated}`)
+        createOrder: function (data, actions) { 
           return actions.order.create({
             purchase_units: [
               {
@@ -334,8 +327,8 @@ class CheckoutPage extends Component {
                 <hr />
                 {this.state.formButtonClicked == false && (
                   <button
-                    id="btn"
-                    className="btn btn-success btn-block w-100"
+                    
+                    className="btn btn-color btn-block w-100"
                     onClick={() => this.onFormButtonClick()}
                   >
                     Continue

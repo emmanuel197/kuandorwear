@@ -35,7 +35,9 @@ class CartPage extends Component {
     }
   }
 
-  
+  checkoutRedirect() {
+    return window.location.replace("/checkout")
+  }
   
   async fetchData() {
       console.log("isAuthenticated: " + `${this.props.isAuthenticated}`)
@@ -78,7 +80,6 @@ class CartPage extends Component {
     }
     componentDidMount() {
       this.setState({isAuthenticated: this.props.isAuthenticated})
-      // console.log(`componentDidMount:isAuthenticated: ${this.props.isAuthenticated}`)
       this.fetchData()
     }
 
@@ -93,81 +94,68 @@ class CartPage extends Component {
     }
   }
   render() {
-    // console.log(this.state.total_cost)
-    console.log(`render:isAuthenticated: ${this.props.isAuthenticated}`)
     const styles = {
       float: "right",
       margin: "5px",
     };
     
-    const cartProducts = this.state.item_list.map((item) => (
-      <CartProduct
+    const cartProducts = this.state.item_list.map((item, index) => {
+      let position;
+      if (index === 0) {
+        position = 'first';
+      } else if (index === this.state.item_list.length - 1) {
+        position = 'last';
+      } else {
+        position = 'middle';
+      }
+      return <CartProduct
         id={item.id}
+        position={position}
         name={item.product}
         price={item.price}
         image={item.image}
         quantity={item.quantity}
         total={parseFloat(item.total).toFixed(2)}
         updateCart={(action, product_id) => this.updateCart(action, product_id)}
-      />
-    ));
+      />}
+  );
+  console.log(this.state.item_list.length)
     return (
       <div className="container">
-        <div className="row mt-5">
-          <div className="col-lg-12">
-            <div className="box-element">
-              <Link className="btn btn-outline-dark" to="/">
-                &#x2190; Continue Shopping
-              </Link>
-              <br />
-              <br />
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>
-                      <h5>
-                        Items: <strong>{this.state.total_items}</strong>
-                      </h5>
-                    </th>
-                    <th>
-                      <h5>
-                        Total:<strong> $ {this.state.total_cost}</strong>
-                      </h5>
-                    </th>
-                    <th>
-                      <Link
-                        style={styles}
-                        className="btn btn-success"
-                        to="/checkout"
-                      >
-                        Checkout
-                      </Link>
-                    </th>
-                  </tr>
-                </thead>
-              </table>
+        <div id="cart-card" className="mt-5">
+            <div className="row">
+                <div className="col-md-8 cart">
+                    <div className="title">
+                        <div className="row">
+                            <div className="col"><h4><b>Shopping Cart</b></h4></div>
+                            <div className="col align-self-center text-right text-muted">{this.state.total_items} items</div>
+                        </div>
+                    </div>
+                    {cartProducts} 
+      
+                    <div className="back-to-shop"><a style={{textDecoration: "none"}} href="/">&#x2190;</a><span className="text-muted">Back to shop</span></div>
+                </div>
+                <div className="col-md-4 summary">
+                    <div><h5><b>Summary</b></h5></div>
+                    <hr/>
+                    <div className="row">
+                        <div className="col" style={{paddingLeft: "0"}}>ITEMS {this.state.total_items}</div>
+                        <div className="col text-right">$ {this.state.total_cost}</div>
+                    </div>
+                    <form>
+                        <p>SHIPPING</p>
+                        <select><option className="text-muted">Standard-Delivery- &euro;5.00</option></select>
+                        <p>GIVE CODE</p>
+                        <input id="code" placeholder="Enter your code"/>
+                    </form>
+                    <div className="row" style={{borderTop: "1px solid rgba(0,0,0,.1)", padding: "2vh 0"}}>
+                        <div className="col">TOTAL PRICE</div>
+                        <div className="col text-right">$ {this.state.total_cost}</div>
+                    </div>
+                    <button className="btn btn-color" onClick={this.checkoutRedirect}>CHECKOUT</button>
+                </div>
             </div>
-
-            <br />
-            <div className="box-element">
-              <div className="cart-row">
-                <div style={{ flex: "2" }}></div>
-                <div style={{ flex: "2" }}>
-                  <strong>Item</strong>
-                </div>
-                <div style={{ flex: "1" }}>
-                  <strong>Price</strong>
-                </div>
-                <div style={{ flex: "1" }}>
-                  <strong>Quantity</strong>
-                </div>
-                <div style={{ flex: "1" }}>
-                  <strong>Total</strong>
-                </div>
-              </div>
-              {cartProducts}
-            </div>
-          </div>
+            
         </div>
       </div>
     );

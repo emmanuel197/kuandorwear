@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import axios from 'axios';
 import { login } from "../actions/auth";
 import { connect } from "react-redux";
+import AlertContext from './AlertContext';
 class LoginPage extends Component {
   constructor(props) {
     super(props);
@@ -26,16 +27,17 @@ class LoginPage extends Component {
     this.setState({ showError: false });
   }
 
+  static contextType = AlertContext;
+
   async onSubmit() {
-    // this.props.login(this.state.email, this.state.password);
-    // document.cookie = 'cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    // console.log("Submitted");
     try {
       await this.props.login(this.state.email, this.state.password);
+      this.context.setAlertMessage('You have successfully logged in');
       document.cookie = "cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       console.log("Submitted");
       if (this.props.isAuthenticated) {
         this.props.history.push("/");
+
       }
     } catch (error) {
       console.log(`error response: ${error.response}`);
@@ -81,7 +83,6 @@ continueWithFacebook = async () => {
   }
 
   render() {
-    // console.log(this.props.formErrors);
     const styles = {
       width: "600px",
     };
@@ -139,15 +140,13 @@ continueWithFacebook = async () => {
             >
               Sign In
             </button>
-            {/* <p className="message">
-              Don't have an account? <a href="/register">Create An Account</a>
-            </p> */}
             <div className="text-center">
               <p>
               Don't have an account? <a href="/register">Register</a>
               </p>
               <p>or sign up with:</p>
-              <button type="button" className="btn btn-link btn-floating mx-1" onClick={this.continueWithFacebook}>
+              <button type="button" className="btn btn-link btn-floating mx-1" >
+                {/* onClick={this.continueWithFacebook} */}
                 <i className="fab fa-facebook-f"></i>
               </button>
 
@@ -177,7 +176,7 @@ continueWithFacebook = async () => {
                 ))}
                 <button
                   type="button"
-                  className="close"
+                  className="btn-close"
                   data-dismiss="alert"
                   aria-label="Close"
                   onClick={this.handleClose}
@@ -189,55 +188,6 @@ continueWithFacebook = async () => {
           </div>
         </div>
       </div>
-      //       <form className="box-element mt-5" style={styles}>
-
-      //   <div class="form-outline register-form-container mb-4">
-      //     <input type="email" id="form2Example1" class="form-control" />
-      //     <label class="form-label" for="form2Example1">Email address</label>
-      //   </div>
-
-      //   <div class="form-outline mb-4">
-      //     <input type="password" id="form2Example2" class="form-control" />
-      //     <label class="form-label" for="form2Example2">Password</label>
-      //   </div>
-
-      //   <div class="row mb-4">
-      //     <div class="col d-flex justify-content-center">
-
-      //       <div class="form-check">
-      //         <input class="form-check-input" type="checkbox" value="" id="form2Example31" checked />
-      //         <label class="form-check-label" for="form2Example31"> Remember me </label>
-      //       </div>
-      //     </div>
-
-      //     <div class="col">
-
-      //       <a href="#!">Forgot password?</a>
-      //     </div>
-      //   </div>
-
-      //   <button type="button" class="btn btn-primary btn-block mb-4">Sign in</button>
-
-      //   <div class="text-center">
-      //     <p>Not a member? <a href="#!">Register</a></p>
-      //     <p>or sign up with:</p>
-      //     <button type="button" class="btn btn-link btn-floating mx-1">
-      //       <i class="fab fa-facebook-f"></i>
-      //     </button>
-
-      //     <button type="button" class="btn btn-link btn-floating mx-1">
-      //       <i class="fab fa-google"></i>
-      //     </button>
-
-      //     <button type="button" class="btn btn-link btn-floating mx-1">
-      //       <i class="fab fa-twitter"></i>
-      //     </button>
-
-      //     <button type="button" class="btn btn-link btn-floating mx-1">
-      //       <i class="fab fa-github"></i>
-      //     </button>
-      //   </div>
-      // </form>
     );
   }
 }

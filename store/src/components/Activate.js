@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { verify } from '../actions/auth';
+import AlertContext from './AlertContext';
 
 class Activate extends Component {
     constructor(props) {
@@ -21,11 +22,13 @@ class Activate extends Component {
         this.props.verify(uid, token);
         this.setState({ verified: true });
     };
+    static contextType = AlertContext;
 
     render() {
         const { verified } = this.state;
 
         if (verified) {
+            this.context.setAlertMessage('Your account has been successfully created and verified! You can now login.')
             return <Redirect to='/' />;
         }
 
@@ -40,7 +43,7 @@ class Activate extends Component {
                         onClick={this.verifyAccount}
                         style={{ marginTop: '50px' }}
                         type='button'
-                        className='btn btn-primary'
+                        className='btn btn-color'
                     >
                         Verify
                     </button>

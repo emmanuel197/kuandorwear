@@ -16,17 +16,23 @@ class ProductPage extends Component {
       product: [],
       product_images: [],
       selectedColor: null,
+      selectedImage: null,
       product_sizes: [],
       item_list: [],
       quantity: 0,
       totalCompletedOrders: 0,
       error: "",
+      // imageClassName: "rounded-4 fit",
     };
     this.productDetailData = this.productDetailData.bind(this);
     this.renderProductDetail = this.renderProductDetail.bind(this);
     this.renderProductError = this.renderProductError.bind(this);
+    // this.imageChange = this.imageChange.bind(this);
     this.productDetailData();
   }
+
+ 
+
   async fetchData() {
     const itemIdToFind = this.props.match.params.id;
     if (this.props.isAuthenticated) {
@@ -156,8 +162,12 @@ class ProductPage extends Component {
       });
     // .catch((error) => console.log(error));
   }
-
+  // imageChange() {
+  //   console.log("image changed")
+  //   this.setState({ imageClassName: "rounded-4 fit selected" });
+  // }
   renderProductDetail() {
+    // const imageChange = this.imageChange() 
     const product_image_variants = this.state.product_images.map(
       (image_object) => (
         <a
@@ -180,13 +190,15 @@ class ProductPage extends Component {
                   image: image_object.image,
                   selectedVariant: image_object.image,
                   selectedColor: image_object.color,
-                },
+                }
               })
             }
           />
         </a>
       )
     );
+    
+    
 
     const product_sizes = this.state.product_sizes.map((sizeObj, index) => (
       <option key={index}>{sizeObj.size.name}</option>
@@ -195,41 +207,7 @@ class ProductPage extends Component {
     console.log(product_sizes);
 
     return (
-      // <div className="container mt-5">
-      //   <div className="row">
-      //     <div className="col-lg-6">
-      //       {/* <img id="product-detail-img" src={this.state.product.image} alt="Perfume bottle"/> */}
-      //       <div className="image-container" style={{borderRadius:
-
-      //       "10px"}}>
-      //         <img
-      //           id="product-detail-img"
-      //           className="thumbnail rounded"
-      //           src={this.state.product.image}
-      //           alt="Perfume bottle"
-      //         />
-      //       </div>
-      //     </div>
-      //     <div className="col-lg-6">
-      //       <div className="box-element" id="product-detail-content">
-      //         <h1 id="product-detail-header">{this.state.product.name}</h1>
-      //         <p id="product-detail-text">{this.state.product.description}</p>
-      //         <p id="price">
-      //           ${this.state.product.price} <del>$199.99</del>
-      //         </p>
-
-      //         <a
-      //           id="product-detail-button"
-      //           onClick={() => {
-      //             this.addToCart("add", this.props.match.params.id);
-      //           }}
-      //         >
-      //           Add to Cart
-      //         </a>
-      //       </div>
-      //     </div>
-      //   </div>
-      // </div>
+      
       <div>
         <section className="py-5">
           <div className="container">
@@ -249,6 +227,7 @@ class ProductPage extends Component {
                         maxHeight: "100vh",
                         margin: "auto",
                       }}
+                      // onChange={imageChange}
                       className="rounded-4 fit"
                       src={this.state.product.image}
                     />
@@ -288,8 +267,8 @@ class ProductPage extends Component {
 
                   <p>{this.state.product.description}</p>
 
-                  <div className="row">
-                    <dt className="col-3">Type:</dt>
+                  <div className="row gap">
+                    <dt className="col-3">Type</dt>
                     <dd className="col-9">Regular</dd>
 
                     {this.state.selectedColor && <dt className="col-3">Color</dt>}
@@ -297,8 +276,8 @@ class ProductPage extends Component {
                       <dd className="col-9">{this.state.selectedColor}</dd>
                     </dd>}
 
-                    <dt className="col-3">Material</dt>
-                    <dd className="col-9">Cotton, Jeans</dd>
+                    {/* <dt className="col-3">Material</dt>
+                    <dd className="col-9">Cotton, Jeans</dd> */}
 
                     {this.state.product.brand && (
                       <dt className="col-3">Brand</dt>
@@ -338,7 +317,7 @@ class ProductPage extends Component {
                         style={{ width: '100%' }}
                       >
                         <button
-                          className="btn btn-white border border-secondary px-3"
+                          className="btn border border-secondary px-3"
                           type="button"
                           id="button-addon1"
                           data-mdb-ripple-color="dark"
@@ -373,8 +352,8 @@ class ProductPage extends Component {
                       </div>
                     </div>
                   </div>
-                  <div className="row gap-1 align-items-center" style={{ marginLeft: '1px' }}>
-                    <a href="#" className="btn btn-warning shadow-0 col-lg-3">
+                  <div className="row gap-1" style={{paddingLeft: "12px", paddingRight: "12px"}}>
+                    <a id="buy-now" href="#" className="btn shadow-0 col-lg-4">
                       {" "}
                       Buy now{" "}
                     </a>
@@ -382,14 +361,15 @@ class ProductPage extends Component {
                       onClick={() => {
                         this.addToCart("add", this.props.match.params.id);
                       }}
-                      className="btn btn-primary shadow-0 col-lg-3"
+                      className="btn shadow-0 col-lg-4"
+                      id="add-to-cart"
                     >
                       {" "}
                       <i className="me-1 fa fa-shopping-basket"></i> Add to cart{" "}
                     </a>
                     <a
                       href="#"
-                      className="btn btn-light border border-secondary py-2 icon-hover px-3 col-lg-3"
+                      className="btn btn-light border border-secondary py-2 icon-hover px-3 col-lg-4"
                     >
                       {" "}
                       <i className="me-1 fa fa-heart fa-lg"></i> Save{" "}
@@ -401,7 +381,7 @@ class ProductPage extends Component {
           </div>
         </section>
 
-        <section className="bg-light border-top py-4">
+        {/* <section className="bg-light border-top py-4">
           <div className="container">
             <div className="row gx-4">
               <div className="col-lg-8 mb-4">
@@ -668,14 +648,14 @@ class ProductPage extends Component {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
       </div>
     );
   }
 
   renderProductError() {
     return (
-      <div className="modal-dialog modal-confirm">
+      <div className="modal-dialog modal-confirm mt-5">
         <div className="modal-content">
           <div className="modal-header">
             <div className="icon-box">
@@ -700,7 +680,7 @@ class ProductPage extends Component {
   render() {
     // const images = this.state.product.images;
     // console.log(images)
-
+    
     if (this.state.error == "") {
       return this.renderProductDetail();
     } else {

@@ -1,5 +1,5 @@
 from django.db import models
-from accounts.models import CustomUser
+from accounts.models import User
 import random, string
 
 # Create your models here.
@@ -7,7 +7,7 @@ import random, string
 
 class Customer(models.Model):
     customer_id = models.CharField(max_length=200, null=True, blank=True)
-    user = models.OneToOneField(CustomUser, null=True, blank=True, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
     # name = models.CharField(max_length=200, null=True, blank=True)
     first_name = models.CharField(max_length=200, null=True, blank=True)
     last_name = models.CharField(max_length=200, null=True, blank=True)

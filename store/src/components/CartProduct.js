@@ -8,28 +8,34 @@ export default class CartProduct extends Component {
   }
 
   render() {
+    let className;
+    switch (this.props.position) {
+      case 'first':
+      case 'last':
+        className = "row border-top border-bottom";
+        break;
+      case 'middle':
+      default:
+        className = "row";
+        break;
+    }
+    console.log(this.props.position)
     return (
-    <div className="cart-row">
-        <div style={{ flex: "2" }}>
-          <img className="row-image" src={this.props.image} />
-        </div>
-        <div style={{ flex: "2" }}>
-          <p>{this.props.name}</p>
-        </div>
-        <div style={{ flex: "1" }}>
-          <p>${this.props.price}</p>
-        </div>
-        <div style={{ flex: "1" }}>
-          <p className="quantity">{this.props.quantity}</p>
-          <div className="quantity">
-            <img className="chg-quantity" src={arrowUp} onClick={() => {this.props.updateCart('add', this.props.id)}}/>
-            <img className="chg-quantity" src={arrowDown} onClick={() => {this.props.updateCart('remove', this.props.id)}}/>
+    
+   
+      <div className={className}>
+      <div className="row main align-items-center gy-3">
+          <div className="col-lg-3 col-md-6 col-sm-6 col-6"><img className="img-fluid" src={this.props.image}/></div>
+          <div className="col-lg-3 col-md-6 col-sm-6 col-6">
+              <div className="row text-muted">{this.props.name}</div>
+              {/* <div className="row">Cotton T-shirt</div> */}
           </div>
-        </div>
-        <div style={{ flex: "1" }}>
-          <p>${this.props.total}</p>
-        </div>
+          <div className="col-lg-3 col-md-6 col-sm-6 col-6">
+              <a className="update-cart-button" onClick={() => {this.props.updateCart('remove', this.props.id)}}>-</a><a href="#" className="border">{this.props.quantity}</a><a className="update-cart-button" onClick={() => {this.props.updateCart('add', this.props.id)}}>+</a>
+          </div>
+          <div className="col-lg-3 col-md-6 col-sm-6 col-6">$ {this.props.price} <span className="close">&#10005;</span></div>
       </div>
+  </div>
     );
   }
 }
