@@ -27,7 +27,7 @@ export default class CartProduct extends Component {
       <div className="row main align-items-center gy-3">
           <div className="col-lg-3 col-md-6 col-sm-6 col-6"><img className="img-fluid" src={this.props.image}/></div>
           <div className="col-lg-3 col-md-6 col-sm-6 col-6">
-              <div className="row text-muted">{this.props.name}</div>
+              <div title={this.props.name} className="row text-muted text-truncate d-inline-block w-100">{this.props.name}</div>
               {/* <div className="row">Cotton T-shirt</div> */}
           </div>
           <div className="col-lg-3 col-md-6 col-sm-6 col-6">

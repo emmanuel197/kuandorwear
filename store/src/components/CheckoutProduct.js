@@ -14,7 +14,8 @@ export default class CheckoutProduct extends Component {
               <img class="row-image" src={this.props.image} />
             </div>
             <div class="col-lg-6 col-md-6 col-12 d-flex align-items-center justify-content-center">
-              <p>{this.props.name}</p>
+              <p title={this.props.name} className="text-truncate d-inline-block 
+              w-50 text-center">{this.props.name}</p>
             </div>
           </div>
         </div>

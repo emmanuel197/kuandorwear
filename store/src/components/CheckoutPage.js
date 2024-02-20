@@ -9,7 +9,8 @@ class CheckoutPage extends Component {
 
     this.state = {
       userInfo: {
-        name: "",
+        first_name: "",
+        last_name: "",
         email: "",
       },
       shippingInfo: {
@@ -137,11 +138,10 @@ class CheckoutPage extends Component {
         return response.json();
       })
       .then((data) => {
-        if (data.redirect) {
+        if (data.order_status) {
           // Redirect to the registration page
           console.log("redirect");
-          document.cookie =
-            "cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          document.cookie = "cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
           window.location.href = data.redirect;
         } else {
           console.log(data.order_status);
@@ -232,7 +232,7 @@ class CheckoutPage extends Component {
         total={item.total}
       />
     ));
-    const { name, email } = this.state.userInfo;
+    const { first_name, last_name, email } = this.state.userInfo;
     const { address, city, state, zipcode, country } = this.state.shippingInfo;
     return (
       <div className="container">
@@ -247,11 +247,24 @@ class CheckoutPage extends Component {
                         required
                         className="form-control"
                         type="text"
-                        name="name"
-                        placeholder="Name.."
-                        value={name}
+                        name="first_name"
+                        placeholder="FirstName.."
+                        value={first_name}
                         onChange={this.handleChange}
                       />
+
+                    </div>
+                    <div className="form-field">
+                      <input
+                        required
+                        className="form-control"
+                        type="text"
+                        name="last_name"
+                        placeholder="LastName.."
+                        value={last_name}
+                        onChange={this.handleChange}
+                      />
+                      
                     </div>
                     <div className="form-field">
                       <input
@@ -355,7 +368,7 @@ class CheckoutPage extends Component {
               <hr />
               {checkoutProducts}
               <h5>Items: {this.state.total_items}</h5>
-              <h5>Total: ${this.state.total_cost}</h5>
+              <h5>Total: ${parseFloat(this.state.total_cost).toFixed(2)}</h5>
             </div>
           </div>
         </div>

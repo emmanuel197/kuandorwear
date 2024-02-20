@@ -9,7 +9,7 @@ import ResetPassword from "./ResetPassword";
 import ResetPasswordConfirm from "./ResetPasswordConfirm";
 import Google from "./Google";
 import { getCookie } from "../util";
-import { BrowserRouter, Switch, Route, Redirect} from "react-router-dom";
+import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import Product from "./Product";
 import Layout from "../hocs/Layout";
 import SearchComponent from "./SearchComponent";
@@ -27,23 +27,31 @@ class Homepage extends Component {
     this.renderHomePage = this.renderHomePage.bind(this);
     this.state = {
       products: [],
+      query: null,
       cartUpdated: this.props.cartUpdated,
+      searchClicked: false,
     };
     this.fetchData = this.fetchData.bind(this);
     this.productToggler = this.productToggler.bind(this);
     this.scrollToProducts = this.scrollToProducts.bind(this);
+    this.searchClickedToggler = this.searchClickedToggler.bind(this)
   }
-  
 
-  productToggler(data) {
+  productToggler(data, query) {
     console.log(`home:product ${data}`);
+    console.log(`home:query ${query}`);
+    console.log(`home:query type ${typeof query}`);
     this.setState((prevstate) => {
-      return { ...prevstate, products: data };
+      return { ...prevstate, products: data, query: query };
     });
   }
-
- async fetchData() {
-   await fetch("/api/products", {
+  searchClickedToggler() {
+    this.setState((prevState) => {
+      return { searchClicked: !prevState.searchClicked  }
+    });
+  }
+  async fetchData() {
+    await fetch("/api/products", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -65,16 +73,16 @@ class Homepage extends Component {
   }
 
   scrollToProducts = () => {
-    this.productsSection.current.scrollIntoView({ behavior: 'smooth' });
+    this.productsSection.current.scrollIntoView({ behavior: "smooth" });
   };
 
   renderHomePage() {
     console.log(this.state.products);
     console.log(heroImg);
+    console.log(this.state.query);
     return (
       <div>
-        
-       <Hero scrollToProducts={this.scrollToProducts}/>
+        <Hero scrollToProducts={this.scrollToProducts} />
         <div className="container mt-5">
           <div className="row">
             <div className="col-lg-4">
@@ -89,19 +97,40 @@ class Homepage extends Component {
             <div className="col-lg-8">
               <SearchComponent
                 products={this.state.products}
-                productToggler={(data) => {
-                  this.productToggler(data);
+                query={this.state.query}
+                productToggler={(data, query) => {
+                  this.productToggler(data, query);
+                
                 }}
+                searchClicked={this.state.searchClicked}
+                searchClickedToggler={this.searchClickedToggler}
               />
-              <div id="products-section" ref={this.productsSection} className="row justify-content-md-center">
-                {this.state.products && this.state.products.map((product) => (
-                  <Product
-                    key={product.id}
-                    product={product}
-                    cart_total_updated={this.props.cart_total_updated}
-                    updatedToggler={this.props.updatedToggler}
-                  />
-                ))}
+              {this.state.searchClicked ? (
+                this.state.query ? (
+                  this.state.products.length > 0 ? (
+                    <h6>Results for "{this.state.query}" query:</h6>
+                  ) : (
+                    <h6>There are no results for "{this.state.query}" query</h6>
+                  )
+                ) : (
+                  <h6>There are no results for "" query</h6>
+                )
+              ) : null}
+              {/* {this.state.data.length > 0 ? <h6>Results for "{this.state.query}" query:</h6> : <h6>There are no results for "{this.state.query}" query</h6>} */}
+              <div
+                id="products-section"
+                ref={this.productsSection}
+                className="row justify-content-md-center"
+              >
+                {this.state.products &&
+                  this.state.products.map((product) => (
+                    <Product
+                      key={product.id}
+                      product={product}
+                      cart_total_updated={this.props.cart_total_updated}
+                      updatedToggler={this.props.updatedToggler}
+                    />
+                  ))}
                 {this.state.products && console.log(this.state.products)}
               </div>
             </div>
@@ -168,7 +197,7 @@ class Homepage extends Component {
               }
             }}
           />
-          
+
           <Route
             path="/activate/:uid/:token"
             render={(props) => {

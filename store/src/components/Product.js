@@ -43,8 +43,8 @@ class Product extends Component {
           </span>
         </div>
         <div className="box-element product">
-          <h6>
-            <strong>{product.name}</strong>
+          <h6 title={product.name}>
+            <strong className="text-truncate d-inline-block w-100">{product.name}</strong>
           </h6>
           <hr />
           <div className="row px-2">

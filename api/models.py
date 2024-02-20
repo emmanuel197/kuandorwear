@@ -1,7 +1,7 @@
 from django.db import models
 from accounts.models import User
 import random, string
-
+from django.utils import timezone
 # Create your models here.
 
 
@@ -91,6 +91,7 @@ class Order(models.Model):
     transaction_id = models.CharField(default=generate_unique_transaction_id, max_length=8, unique=True)
     date_ordered = models.DateTimeField(auto_now_add=True)
     complete = models.BooleanField(default=False)
+    date_completed = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.transaction_id

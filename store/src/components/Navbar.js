@@ -184,8 +184,6 @@ class NavBar extends Component {
           <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       )}
-      {/* {alertMessage && (console.log(`nav:message:${alertMessage}`))} */}
-    {/* {alertMessage && setAlertMessage(null)} */}
     </div>
      
     

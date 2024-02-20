@@ -73,11 +73,12 @@ class ProductPage extends Component {
       // console.log("cookieCart");
       const { items } = await cookieCart.call(this);
       console.log(items)
+      console.log(`length: ${items.length}`)
       const item = items.find((item) => item["id"] == itemIdToFind);
-      console.log(`total_completed_orders: ${item.total_completed_orders}`)
+      // console.log(`total_completed_orders: ${items.length > 0 && item.total_completed_orders}`)
       this.setState({
-        quantity: item.quantity ? item.quantity : 0,
-        totalCompletedOrders: item.total_completed_orders
+        quantity: item ? item.quantity : 0,
+        totalCompletedOrders: item ? item.total_completed_orders : 0
       });
       // console.log(items);
     }
@@ -93,6 +94,12 @@ class ProductPage extends Component {
     }
     if (prevProps.isAuthenticated !== this.props.isAuthenticated) {
       this.fetchData();
+    }
+
+    if (prevState.quantity !== this.state.quantity) {
+      if (this.state.quantity === 0) {
+        this.fetchData();
+      }
     }
     if (prevState.product.image !== this.state.product.image) {
       if (this.state.product_images.length != 0) {
@@ -334,7 +341,7 @@ class ProductPage extends Component {
                           type="text"
                           className="form-control text-center border border-secondary"
                           name="quantity"
-                          value={this.state.quantity}
+                          value={this.state.quantity ? this.state.quantity : 0}
                           aria-label="Example text with button addon"
                           aria-describedby="button-addon1"
                         />

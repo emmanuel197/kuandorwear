@@ -4,18 +4,20 @@ from .models import Product, Order, OrderItem, Customer, ShippingAddress
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics, status
-from django.core.validators import validate_email
-from django.http import JsonResponse
-from django.db import transaction
+# from django.core.validators import validate_email
+# from django.http import JsonResponse
+# from django.db import transaction
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 import json
 from django.db.models import Q
 from .filters import ProductFilter
 from django_filters.rest_framework import DjangoFilterBackend
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
-from django.utils.html import strip_tags
+from django.conf import settings
+from django.utils import timezone
+# from django.utils.html import strip_tags
 # from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -161,13 +163,25 @@ class updateCartView(APIView):
         print(f'quantity {order_item.quantity}')
         return Response({'message': 'Cart updated successfully'}, status=status.HTTP_200_OK)
 
-def send_purchase_confirmation_email(user_email, user_info, shipping_info, total):
-    subject = 'Purchase Confirmation'
-    html_message = render_to_string('purchase_confirmation_email.html', {'user_info': user_info, 'shipping_info': shipping_info, 'total': total})
-    plain_message = strip_tags(html_message)
-    from_email = 'eamokuandoh@gmail.com'  # Update with your email
-    to = user_email
-    send_mail(subject, plain_message, from_email, [to], html_message=html_message) 
+def send_purchase_confirmation_email(user_email, first_name, order, total):
+    shipping_address = None
+    if order.shipping:
+        shipping_address = order.shippingaddress_set.all().first()  # Assuming you have a ShippingAddress model associated with the order
+     
+    template = render_to_string('api/email_template.html', {'order': order,
+                                                            'orderitems': order.orderitem_set.all(),
+                                                        "first_name": first_name, 
+                                                        "total": total,
+                                                        'shipping_address': shipping_address
+                                                        })
+    email = EmailMessage(
+        'Your purchase has been confirmed',
+        template,
+        settings.EMAIL_HOST_USER,
+        [user_email],
+    )
+    email.fail_silently=False
+    email.send()
 
 class ProcessOrderView(APIView):
     permission_classes = [ IsAuthenticated ]
@@ -191,6 +205,7 @@ class ProcessOrderView(APIView):
         
         if total == float(order.get_cart_total):
             order.complete = True
+            order.date_completed = timezone.now()
             order.save()
     
         if order.shipping == True:
@@ -203,7 +218,7 @@ class ProcessOrderView(APIView):
             zipcode=shipping_info['zipcode'],
             country=shipping_info['country']
             )
-        send_purchase_confirmation_email(request.user.email, user_info, shipping_info, total)
+        send_purchase_confirmation_email(request.user.email, request.user.first_name, order, total)
 
         
         return Response({'order_status': order.complete}, status=status.HTTP_200_OK)
@@ -213,11 +228,16 @@ class UnAuthProcessOrderView(APIView):
         user_info = request.data.get('user_info')
         shipping_info = request.data.get('shipping_info')
         total = request.data.get('total')
-        name = user_info['name']
+        first_name = user_info['first_name']
+        last_name = user_info['last_name']
         email = user_info['email']
+        print(f'name: {first_name} {last_name}')
+        print(f'email: {email}')
 
-        customer, created = Customer.objects.get_or_create(name=name, email=email)
-        order, created = Order.objects.get_or_create(customer=customer)
+
+
+        customer, created = Customer.objects.get_or_create(first_name=first_name, last_name=last_name, email=email)
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
 
         cart = json.loads(request.COOKIES['cart'])
         for i in cart:
@@ -228,9 +248,10 @@ class UnAuthProcessOrderView(APIView):
                 product=product,
                 defaults={'quantity': cart[i]['quantity']}
             )
-        print
+        
         if total == float(order.get_cart_total):
             order.complete = True
+            order.date_completed = timezone.now()
             order.save()
     
         if order.shipping == True:
@@ -243,5 +264,6 @@ class UnAuthProcessOrderView(APIView):
             zipcode=shipping_info['zipcode'],
             country=shipping_info['country']
             )
+        send_purchase_confirmation_email(email, first_name, order, total)
         
-        return Response({'order_status': order.complete}, status=status.HTTP_200_OK)
+        return Response({'order_status': order.complete, 'redirect': '/'}, status=status.HTTP_200_OK)
