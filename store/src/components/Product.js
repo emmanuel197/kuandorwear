@@ -1,7 +1,5 @@
 import React, { Component } from "react";
-import placeHolderImage from "../../static/images/placeholder.png";
 import { Link } from "react-router-dom";
-import { getCookie } from "../util";
 import { connect } from "react-redux";
 import { addCookieItem, handleOrderedItem } from "../cart";
 class Product extends Component {

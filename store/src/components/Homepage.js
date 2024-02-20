@@ -29,6 +29,7 @@ class Homepage extends Component {
       products: [],
       query: null,
       cartUpdated: this.props.cartUpdated,
+      cart_total_updated: this.props.cart_total_updated,
       searchClicked: false,
     };
     this.fetchData = this.fetchData.bind(this);
@@ -38,9 +39,6 @@ class Homepage extends Component {
   }
 
   productToggler(data, query) {
-    console.log(`home:product ${data}`);
-    console.log(`home:query ${query}`);
-    console.log(`home:query type ${typeof query}`);
     this.setState((prevstate) => {
       return { ...prevstate, products: data, query: query };
     });
@@ -116,7 +114,6 @@ class Homepage extends Component {
                   <h6>There are no results for "" query</h6>
                 )
               ) : null}
-              {/* {this.state.data.length > 0 ? <h6>Results for "{this.state.query}" query:</h6> : <h6>There are no results for "{this.state.query}" query</h6>} */}
               <div
                 id="products-section"
                 ref={this.productsSection}
@@ -181,7 +178,11 @@ class Homepage extends Component {
           />
           <Route
             path="/checkout"
-            render={(props) => <CheckoutPage {...props} />}
+            render={(props) => <CheckoutPage {...props}
+            updatedToggler={this.props.updatedToggler}
+                cartUpdatedToggler={() => {
+                  this.props.cartUpdatedToggler();
+                }} />}
           />
           <Route path="/register" component={RegisterPage} />
           <Route path="/about" component={AboutPage} />

@@ -130,7 +130,7 @@ export async function cookieCart() {
               price: product.price,
               image: product.image,
               quantity: cart[productId].quantity,
-              total_completed_orders: product.total_completed_orders,
+              // total_completed_orders: product.total_completed_orders,
               total: total,
             };
 

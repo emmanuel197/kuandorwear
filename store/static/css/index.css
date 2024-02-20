@@ -12,7 +12,7 @@
 
 
 body{
-	background-color: hsl(0, 0%, 98%);
+	background-color: hsl(0, 0%, 96%);
 	box-sizing: border-box;
 	font-family: var(--fontfamily2);
 }
@@ -329,7 +329,7 @@ padding: 20px 5%;
 
 .hero__text h1 {
 margin: 0 0 24px;
-font-family: "Merriweather", serif;
+font-family: var(--fontfamily1);
 font-weight: 900;
 font-size: 50px;
 line-height: 1.3;
@@ -382,7 +382,7 @@ border-color: var(--background3) !important;
 transition: all 0.3s ease;
 }
 
-#add-to-cart {
+#add-to-cart, #continue-with-google {
 background-color: var(--background4);
 color: var(--color2);
 
@@ -395,14 +395,14 @@ color: var(--color2);
 }
 
 
-#buy-now:hover {
+#buy-now:hover, #continue-with-google:hover {
 background-color: var(--background3);
 transition: all 0.3s ease;
 }
 
 #add-to-cart:hover {
 background-color: var(--color1);
-
+transition: all 0.3s ease;
 }
 
 #product-add-to-cart {
@@ -414,6 +414,7 @@ background-color: var(--color1);
 #product-add-to-cart:hover {
 	background-color: var(--background2);
 	color: var(--color2);
+	transition: all 0.3s ease;
 }
 #product-view-btn {
 	border-color: var(--background4);
@@ -423,6 +424,7 @@ background-color: var(--color1);
 #product-view-btn:hover {
 	background-color: var(--background4);
 	color: var(--color2);
+	transition: all 0.3s ease;
 }
 
 #cart-total{
@@ -659,6 +661,7 @@ background-color: var(--color1);
   }
   #product-detail-button:hover, #register-submit-button:hover {
 	background-color: var(--background3);
+	transition: all 0.5s ease;
 	text-decoration: none;
 	
   }

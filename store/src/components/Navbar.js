@@ -76,6 +76,7 @@ class NavBar extends Component {
     if (prevProps.isAuthenticated !== this.props.isAuthenticated) {
       this.fetchData();
     }
+    
   }
 
   logOutHandler() {
@@ -90,7 +91,7 @@ class NavBar extends Component {
     const capitalizedUsername = username.charAt(0).toUpperCase() + username.slice(1);
     const { alertMessage, setAlertMessage } = this.context;
     
-    
+    console.log(alertMessage)
     return (
       <div>
         <nav className="store-nav">
@@ -112,71 +113,15 @@ class NavBar extends Component {
             ) : (
               <li><a href="/login">Login</a></li>
             )}
-         
-          {/* <li>
-            <a href="#" className="desktop-item">Dropdown Menu</a>
-            <input type="checkbox" id="showDrop"/>
-            <label for="showDrop" className="mobile-item">Dropdown Menu</label>
-            <ul class="drop-menu">
-              <li><a href="#">Drop menu 1</a></li>
-              <li><a href="#">Drop menu 2</a></li>
-              <li><a href="#">Drop menu 3</a></li>
-              <li><a href="#">Drop menu 4</a></li>
-            </ul>
-          </li> */}
-          {/* <li>
-            <a href="#" class="desktop-item">Mega Menu</a>
-            <input type="checkbox" id="showMega"/>
-            <label for="showMega" class="mobile-item">Mega Menu</label>
-            <div class="mega-box">
-              <div class="content">
-                <div class="row">
-                  <img src="https://fadzrinmadu.github.io/hosted-assets/responsive-mega-menu-and-dropdown-menu-using-only-html-and-css/img.jpg" alt=""/>
-                </div>
-                <div class="row">
-                  <header>Design Services</header>
-                  <ul class="mega-links">
-                    <li><a href="#">Graphics</a></li>
-                    <li><a href="#">Vectors</a></li>
-                    <li><a href="#">Business cards</a></li>
-                    <li><a href="#">Custom logo</a></li>
-                  </ul>
-                </div>
-                <div class="row">
-                  <header>Email Services</header>
-                  <ul class="mega-links">
-                    <li><a href="#">Personal Email</a></li>
-                    <li><a href="#">Business Email</a></li>
-                    <li><a href="#">Mobile Email</a></li>
-                    <li><a href="#">Web Marketing</a></li>
-                  </ul>
-                </div>
-                <div class="row">
-                  <header>Security services</header>
-                  <ul class="mega-links">
-                    <li><a href="#">Site Seal</a></li>
-                    <li><a href="#">VPS Hosting</a></li>
-                    <li><a href="#">Privacy Seal</a></li>
-                    <li><a href="#">Website design</a></li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </li> */}
           <li>
             <a href="/cart" id="cart-link">
-              
                 <img id="cart-icon" src={cartIcon}/>
                 <p id="cart-total" className="badge align-text-center">{this.state.totalItems}</p>
-                
                 </a>
-                
-                
           </li>
         </ul>
         <label for="menu-btn" class="btn menu-btn"><i class="fas fa-bars"></i></label>
       </div>
-      
         </nav>
         {alertMessage && (
           <div className="alert btn-color alert-dismissible fade show mb-0" role="alert">
@@ -185,11 +130,6 @@ class NavBar extends Component {
         </div>
       )}
     </div>
-     
-    
-
-    
-    
     );
   }
 }

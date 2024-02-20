@@ -1,12 +1,9 @@
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from .serializers import ProductSerializer
 from .models import Product, Order, OrderItem, Customer, ShippingAddress
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics, status
-# from django.core.validators import validate_email
-# from django.http import JsonResponse
-# from django.db import transaction
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 import json
@@ -17,8 +14,7 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.utils import timezone
-# from django.utils.html import strip_tags
-# from django.contrib.auth.decorators import login_required
+
 
 # Create your views here.
 
@@ -95,19 +91,12 @@ class CartDataView(APIView):
 
    
     def get(self, request, *args, **kwargs):
-        # print(f"auth user {request.user.is_authenticated}")
-        # print(f"user pk {request.user.pk}")
-
-        # if request.user.is_authenticated:
         customer = Customer.objects.filter(user=self.request.user).first()
-        # print(f'customer {customer}')
         order, order_created = Order.objects.get_or_create(customer=customer, complete=False)
-        # print(f'order {order}')
         items = order.orderitem_set.all()
         
         if len(items) == 0:
             return Response({"QUERY ERROR: No Such Order Item Exists"}, status=status.HTTP_404_NOT_FOUND)
-        # print(f'items {items}')
         item_list = []
         for item in items:
             item_list.append({
@@ -143,11 +132,7 @@ class updateCartView(APIView):
         product_id = data.get('product_id')
         action = data.get('action')
         product = Product.objects.get(id=product_id)
-        # print(product)
-        # if request.user.is_authenticated:
         customer = Customer.objects.filter(user=request.user).first()
-        # else:
-            # customer = Customer.objects.filter(customer_id=self.request.session.session_key).first()
         order, order_created  = Order.objects.get_or_create(customer=customer, complete=False)
         order_item, order_item_created = OrderItem.objects.get_or_create(order=order, product=product)
 
@@ -221,7 +206,7 @@ class ProcessOrderView(APIView):
         send_purchase_confirmation_email(request.user.email, request.user.first_name, order, total)
 
         
-        return Response({'order_status': order.complete}, status=status.HTTP_200_OK)
+        return Response({'order_status': order.complete, 'redirect': '/'}, status=status.HTTP_200_OK)
 
 class UnAuthProcessOrderView(APIView):
     def post(self, request, format=None):         
@@ -231,14 +216,14 @@ class UnAuthProcessOrderView(APIView):
         first_name = user_info['first_name']
         last_name = user_info['last_name']
         email = user_info['email']
-        print(f'name: {first_name} {last_name}')
-        print(f'email: {email}')
-
+        # print(f'name: {first_name} {last_name}')
+        # print(f'email: {email}')
+        print(f'total: {total}')
 
 
         customer, created = Customer.objects.get_or_create(first_name=first_name, last_name=last_name, email=email)
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
-
+        print(f'get_cart_total: {order.get_cart_total}')
         cart = json.loads(request.COOKIES['cart'])
         for i in cart:
             if cart[i]['quantity'] > 0:  
@@ -249,11 +234,11 @@ class UnAuthProcessOrderView(APIView):
                 defaults={'quantity': cart[i]['quantity']}
             )
         
-        if total == float(order.get_cart_total):
+        if round(total, 2) == float(order.get_cart_total):
             order.complete = True
             order.date_completed = timezone.now()
             order.save()
-    
+        
         if order.shipping == True:
             ShippingAddress.objects.create(
             customer=customer,

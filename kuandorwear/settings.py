@@ -54,7 +54,6 @@ ROOT_URLCONF = 'kuandorwear.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # 'DIRS': [os.path.join(BASE_DIR, 'api/templates')],
         'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {

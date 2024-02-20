@@ -3,6 +3,7 @@ import CheckoutProduct from "./CheckoutProduct";
 import { connect } from "react-redux";
 import { getCookie } from "../util";
 import { cookieCart } from "../cart";
+import AlertContext from './AlertContext';
 class CheckoutPage extends Component {
   constructor(props) {
     super(props);
@@ -87,6 +88,8 @@ class CheckoutPage extends Component {
       this.fetchData();
     }
   }
+  static contextType = AlertContext;
+
   processOrder() {
     const jwtToken = localStorage.getItem("access");
     const requestOptions = {
@@ -107,10 +110,13 @@ class CheckoutPage extends Component {
         return response.json();
       })
       .then((data) => {
-        if (data.redirect) {
+        if (data.order_status) {
           // Redirect to the registration page
           console.log("redirect");
-          window.location.href = data.redirect;
+          this.context.setAlertMessage('You have successfully completed your purchase! Check your  email for a confirmation of your order details');
+          this.props.cartUpdatedToggler() 
+          this.props.updatedToggler()
+          this.props.history.push(data.redirect);
         } else {
           console.log(data.order_status);
           window.location.replace("/");
@@ -137,14 +143,20 @@ class CheckoutPage extends Component {
       .then((response) => {
         return response.json();
       })
-      .then((data) => {
+      .then(async (data) => {
         if (data.order_status) {
           // Redirect to the registration page
           console.log("redirect");
           document.cookie = "cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-          window.location.href = data.redirect;
+          // window.location.replace(data.redirect)
+          await this.props.updatedToggler()
+          await this.props.cartUpdatedToggler()
+          this.context.setAlertMessage('You have successfully completed your purchase! Check your  email for a confirmation of your order');
+          
+          this.props.history.push(data.redirect);
         } else {
           console.log(data.order_status);
+          this.context.setAlertMessage('Your purchase was not completed successfully');
           window.location.replace("/");
         }
       })

@@ -14,7 +14,6 @@ class RegisterPage extends Component {
       email: "",
       accountCreated: false,
       showError: false
-      // formErrors: {},
     };
     this.register = this.register.bind(this);
     this.handleChange = this.handleChange.bind(this);

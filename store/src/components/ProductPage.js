@@ -20,14 +20,12 @@ class ProductPage extends Component {
       product_sizes: [],
       item_list: [],
       quantity: 0,
-      totalCompletedOrders: 0,
       error: "",
       // imageClassName: "rounded-4 fit",
     };
     this.productDetailData = this.productDetailData.bind(this);
     this.renderProductDetail = this.renderProductDetail.bind(this);
     this.renderProductError = this.renderProductError.bind(this);
-    // this.imageChange = this.imageChange.bind(this);
     this.productDetailData();
   }
 
@@ -56,12 +54,10 @@ class ProductPage extends Component {
         })
         .then((data) => {
           console.log(`data: ${data.items}`);
-          // console.log(itemIdToFind)
           const item = data.items.find((item) => item["id"] == itemIdToFind);
           console.log(`item: ${item}`)
           this.setState({
             quantity: item.quantity ? item.quantity : 0,
-            totalCompletedOrders: item.total_completed_orders
           });
         })
       .catch((errorData) => {
@@ -70,17 +66,13 @@ class ProductPage extends Component {
         quantity: 0
       })});
     } else {
-      // console.log("cookieCart");
       const { items } = await cookieCart.call(this);
       console.log(items)
       console.log(`length: ${items.length}`)
       const item = items.find((item) => item["id"] == itemIdToFind);
-      // console.log(`total_completed_orders: ${items.length > 0 && item.total_completed_orders}`)
       this.setState({
         quantity: item ? item.quantity : 0,
-        totalCompletedOrders: item ? item.total_completed_orders : 0
       });
-      // console.log(items);
     }
   }
 
@@ -101,6 +93,7 @@ class ProductPage extends Component {
         this.fetchData();
       }
     }
+
     if (prevState.product.image !== this.state.product.image) {
       if (this.state.product_images.length != 0) {
         const selectedVariant = this.state.product_images.find(
@@ -117,7 +110,6 @@ class ProductPage extends Component {
   }
 
   addToCart(action, product_id) {
-    // console.log(this.props.isAuthenticated);
     if (this.props.isAuthenticated) {
       handleOrderedItem.call(this, product_id);
     } else {
@@ -126,9 +118,6 @@ class ProductPage extends Component {
   }
 
   updateCart(action, product_id) {
-    // console.log(this.props.isAuthenticated);
-    // this.setState((prevState) => return {...prevState, isAuthenticated: this.props.isAuthenticated})
-    // console.log(product_id);
     if (this.props.isAuthenticated) {
       addOrRemoveItemHandler.call(this, action, product_id);
     } else {
@@ -137,12 +126,9 @@ class ProductPage extends Component {
   }
 
   async productDetailData() {
-    // console.log("run");
     const id = this.props.match.params.id;
-    // console.log(id);
     await fetch(`/api/product/${id}`)
       .then(async (response) => {
-        // console.log(response);
         if (response.ok) {
           return await response.json();
         } else {
@@ -150,7 +136,6 @@ class ProductPage extends Component {
         }
       })
       .then((data) => {
-        console.log(data.images);
         if (data.images.length != 0) {
           const defaultImage = data.images.find((image) => image.default);
           console.log(defaultImage);
@@ -164,17 +149,10 @@ class ProductPage extends Component {
         } else {
           this.setState({ product: data, product_sizes: data.sizes });
         }
-
-        // console.log(data.sizes)
       });
-    // .catch((error) => console.log(error));
   }
-  // imageChange() {
-  //   console.log("image changed")
-  //   this.setState({ imageClassName: "rounded-4 fit selected" });
-  // }
+
   renderProductDetail() {
-    // const imageChange = this.imageChange() 
     const product_image_variants = this.state.product_images.map(
       (image_object) => (
         <a
@@ -210,7 +188,6 @@ class ProductPage extends Component {
     const product_sizes = this.state.product_sizes.map((sizeObj, index) => (
       <option key={index}>{sizeObj.size.name}</option>
     ));
-    // console.log(this.state.product_sizes)
     console.log(product_sizes);
 
     return (
@@ -234,7 +211,6 @@ class ProductPage extends Component {
                         maxHeight: "100vh",
                         margin: "auto",
                       }}
-                      // onChange={imageChange}
                       className="rounded-4 fit"
                       src={this.state.product.image}
                     />
@@ -257,7 +233,8 @@ class ProductPage extends Component {
                       <span className="ms-1">4.5</span>
                     </div>
                     <span className="text-muted">
-                      <i className="fas fa-shopping-basket fa-sm mx-1"></i>{this.state.totalCompletedOrders}
+                      <i className="fas fa-shopping-basket fa-sm mx-1"></i>{this.state.product.total_completed_orders}
+                      {this.state.totalCompletedOrders !== 0 && console.log(`totalCompletedOrders: ${this.state.totalCompletedOrders}`)}
                        {this.state.totalCompletedOrders === 1? " order": " orders"}
                     </span>
                     <span className="text-success ms-2">In stock</span>
@@ -282,10 +259,6 @@ class ProductPage extends Component {
                     {this.state.selectedColor && <dd className="col-9">
                       <dd className="col-9">{this.state.selectedColor}</dd>
                     </dd>}
-
-                    {/* <dt className="col-3">Material</dt>
-                    <dd className="col-9">Cotton, Jeans</dd> */}
-
                     {this.state.product.brand && (
                       <dt className="col-3">Brand</dt>
                     )}
@@ -308,15 +281,6 @@ class ProductPage extends Component {
                         </select>
                       </div>
                     )}
-                    {/* <div className="col-md-4 col-6">
-                      <label className="mb-2">Size</label>
-                      <select
-                        className="form-select border border-secondary"
-                        style={{height: "35px"}}
-                      >
-                        {product_sizes}
-                      </select>
-                    </div> */}
                     <div className="col-md-4 col-lg-6 mb-3">
                       <label className="mb-2 d-block">Quantity</label>
                       <div
@@ -387,275 +351,6 @@ class ProductPage extends Component {
             </div>
           </div>
         </section>
-
-        {/* <section className="bg-light border-top py-4">
-          <div className="container">
-            <div className="row gx-4">
-              <div className="col-lg-8 mb-4">
-                <div className="border rounded-2 px-3 py-2 bg-white">
-                  <ul
-                    className="nav nav-pills nav-justified mb-3"
-                    id="ex1"
-                    role="tablist"
-                  >
-                    <li className="nav-item d-flex" role="presentation">
-                      <a
-                        className="nav-link d-flex align-items-center justify-content-center w-100 active"
-                        id="ex1-tab-1"
-                        data-mdb-toggle="pill"
-                        href="#ex1-pills-1"
-                        role="tab"
-                        aria-controls="ex1-pills-1"
-                        aria-selected="true"
-                      >
-                        Specification
-                      </a>
-                    </li>
-                    <li className="nav-item d-flex" role="presentation">
-                      <a
-                        className="nav-link d-flex align-items-center justify-content-center w-100"
-                        id="ex1-tab-2"
-                        data-mdb-toggle="pill"
-                        href="#ex1-pills-2"
-                        role="tab"
-                        aria-controls="ex1-pills-2"
-                        aria-selected="false"
-                      >
-                        Warranty info
-                      </a>
-                    </li>
-                    <li className="nav-item d-flex" role="presentation">
-                      <a
-                        className="nav-link d-flex align-items-center justify-content-center w-100"
-                        id="ex1-tab-3"
-                        data-mdb-toggle="pill"
-                        href="#ex1-pills-3"
-                        role="tab"
-                        aria-controls="ex1-pills-3"
-                        aria-selected="false"
-                      >
-                        Shipping info
-                      </a>
-                    </li>
-                    <li className="nav-item d-flex" role="presentation">
-                      <a
-                        className="nav-link d-flex align-items-center justify-content-center w-100"
-                        id="ex1-tab-4"
-                        data-mdb-toggle="pill"
-                        href="#ex1-pills-4"
-                        role="tab"
-                        aria-controls="ex1-pills-4"
-                        aria-selected="false"
-                      >
-                        Seller profile
-                      </a>
-                    </li>
-                  </ul>
-
-                  <div className="tab-content" id="ex1-content">
-                    <div
-                      className="tab-pane fade show active"
-                      id="ex1-pills-1"
-                      role="tabpanel"
-                      aria-labelledby="ex1-tab-1"
-                    >
-                      <p>
-                        With supporting text below as a natural lead-in to
-                        additional content. Lorem ipsum dolor sit amet,
-                        consectetur adipisicing elit, sed do eiusmod tempor
-                        incididunt ut labore et dolore magna aliqua. Ut enim ad
-                        minim veniam, quis nostrud exercitation ullamco laboris
-                        nisi ut aliquip ex ea commodo consequat. Duis aute irure
-                        dolor in reprehenderit in voluptate velit esse cillum
-                        dolore eu fugiat nulla pariatur.
-                      </p>
-                      <div className="row mb-2">
-                        <div className="col-12 col-md-6">
-                          <ul className="list-unstyled mb-0">
-                            <li>
-                              <i className="fas fa-check text-success me-2"></i>
-                              Some great feature name here
-                            </li>
-                            <li>
-                              <i className="fas fa-check text-success me-2"></i>
-                              Lorem ipsum dolor sit amet, consectetur
-                            </li>
-                            <li>
-                              <i className="fas fa-check text-success me-2"></i>
-                              Duis aute irure dolor in reprehenderit
-                            </li>
-                            <li>
-                              <i className="fas fa-check text-success me-2"></i>
-                              Optical heart sensor
-                            </li>
-                          </ul>
-                        </div>
-                        <div className="col-12 col-md-6 mb-0">
-                          <ul className="list-unstyled">
-                            <li>
-                              <i className="fas fa-check text-success me-2"></i>
-                              Easy fast and ver good
-                            </li>
-                            <li>
-                              <i className="fas fa-check text-success me-2"></i>
-                              Some great feature name here
-                            </li>
-                            <li>
-                              <i className="fas fa-check text-success me-2"></i>
-                              Modern style and design
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                      <table className="table border mt-3 mb-2">
-                        <tr>
-                          <th className="py-2">Display:</th>
-                          <td className="py-2">
-                            13.3-inch LED-backlit display with IPS
-                          </td>
-                        </tr>
-                        <tr>
-                          <th className="py-2">Processor capacity:</th>
-                          <td className="py-2">
-                            2.3GHz dual-core Intel Core i5
-                          </td>
-                        </tr>
-                        <tr>
-                          <th className="py-2">Camera quality:</th>
-                          <td className="py-2">720p FaceTime HD camera</td>
-                        </tr>
-                        <tr>
-                          <th className="py-2">Memory</th>
-                          <td className="py-2">8 GB RAM or 16 GB RAM</td>
-                        </tr>
-                        <tr>
-                          <th className="py-2">Graphics</th>
-                          <td className="py-2">Intel Iris Plus Graphics 640</td>
-                        </tr>
-                      </table>
-                    </div>
-                    <div
-                      className="tab-pane fade mb-2"
-                      id="ex1-pills-2"
-                      role="tabpanel"
-                      aria-labelledby="ex1-tab-2"
-                    >
-                      Tab content or sample information now <br />
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                      sed do eiusmod tempor incididunt ut labore et dolore magna
-                      aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                      ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                      Duis aute irure dolor in reprehenderit in voluptate velit
-                      esse cillum dolore eu fugiat nulla pariatur. Excepteur
-                      sint occaecat cupidatat non proident, sunt in culpa qui
-                      officia deserunt mollit anim id est laborum. Lorem ipsum
-                      dolor sit amet, consectetur adipisicing elit, sed do
-                      eiusmod tempor incididunt ut labore et dolore magna
-                      aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                      ullamco laboris nisi ut aliquip ex ea commodo
-                    </div>
-                    <div
-                      className="tab-pane fade mb-2"
-                      id="ex1-pills-3"
-                      role="tabpanel"
-                      aria-labelledby="ex1-tab-3"
-                    >
-                      Another tab content or sample information now <br />
-                      Excepteur sint occaecat cupidatat non proident, sunt in
-                      culpa qui officia deserunt mollit anim id est laborum.
-                    </div>
-                    <div
-                      className="tab-pane fade mb-2"
-                      id="ex1-pills-4"
-                      role="tabpanel"
-                      aria-labelledby="ex1-tab-4"
-                    >
-                      Some other tab content or sample information now <br />
-                      Excepteur sint occaecat cupidatat non proident, sunt in
-                      culpa qui officia deserunt mollit anim id est laborum.
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-lg-4">
-                <div className="px-0 border rounded-2 shadow-0">
-                  <div className="card">
-                    <div className="card-body">
-                      <h5 className="card-title">Similar items</h5>
-                      <div className="d-flex mb-3">
-                        <a href="#" className="me-3">
-                          <img
-                            src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/8.webp"
-                            style={{ minWidth: "96px", height: "96px" }}
-                            className="img-md img-thumbnail"
-                          />
-                        </a>
-                        <div className="info">
-                          <a href="#" className="nav-link mb-1">
-                            Rucksack Backpack Large <br />
-                            Line Mounts
-                          </a>
-                          <strong className="text-dark"> $38.90</strong>
-                        </div>
-                      </div>
-
-                      <div className="d-flex mb-3">
-                        <a href="#" className="me-3">
-                          <img
-                            src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/9.webp"
-                            style={{ minWidth: "96px", height: "96px" }}
-                            className="img-md img-thumbnail"
-                          />
-                        </a>
-                        <div className="info">
-                          <a href="#" className="nav-link mb-1">
-                            Summer New Men's Denim <br />
-                            Jeans Shorts
-                          </a>
-                          <strong className="text-dark"> $29.50</strong>
-                        </div>
-                      </div>
-
-                      <div className="d-flex mb-3">
-                        <a href="#" className="me-3">
-                          <img
-                            src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/10.webp"
-                            style={{ minWidth: "96px", height: "96px" }}
-                            className="img-md img-thumbnail"
-                          />
-                        </a>
-                        <div className="info">
-                          <a href="#" className="nav-link mb-1">
-                            {" "}
-                            T-shirts with multiple colors, for men and lady{" "}
-                          </a>
-                          <strong className="text-dark"> $120.00</strong>
-                        </div>
-                      </div>
-
-                      <div className="d-flex">
-                        <a href="#" className="me-3">
-                          <img
-                            src="https://bootstrap-ecommerce.com/bootstrap5-ecommerce/images/items/11.webp"
-                            style={{ minWidth: "96px", height: "96px" }}
-                            className="img-md img-thumbnail"
-                          />
-                        </a>
-                        <div className="info">
-                          <a href="#" className="nav-link mb-1">
-                            {" "}
-                            Blazer Suit Dress Jacket for Men, Blue color{" "}
-                          </a>
-                          <strong className="text-dark"> $339.90</strong>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section> */}
       </div>
     );
   }
@@ -674,7 +369,6 @@ class ProductPage extends Component {
           <div className="modal-body text-center">
             <h4>Something went wrong</h4>
             <p>{this.state.error}</p>
-            {/* <button className="btn btn-primary"  href="{% url 'homepage' %}">Go Back</button> */}
             <a id="product-detail-button" href="/">
               Go Back
             </a>
@@ -685,9 +379,6 @@ class ProductPage extends Component {
   }
 
   render() {
-    // const images = this.state.product.images;
-    // console.log(images)
-    
     if (this.state.error == "") {
       return this.renderProductDetail();
     } else {

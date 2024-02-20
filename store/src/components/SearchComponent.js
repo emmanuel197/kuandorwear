@@ -17,8 +17,6 @@ class SearchComponent extends Component {
     try {
       const response = await fetch(`/api/search/?q=${this.state.query}`);
       const data = await response.json();
-      // this.setState({ filteredProducts: data })
-      // this.props.productToggler(this.state.query);
       this.props.productToggler(data, this.state.query);
       console.log(data);
     } catch (error) {
@@ -58,9 +56,6 @@ class SearchComponent extends Component {
             </button>
           </div>
         </nav>
-
-        
-
       </>
       );
   }

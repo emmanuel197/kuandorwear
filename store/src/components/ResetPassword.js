@@ -6,7 +6,6 @@ import { reset_password } from "../actions/auth";
 class ResetPassword extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
       requestSent: false,
       formData: {
@@ -48,24 +47,7 @@ class ResetPassword extends Component {
         <h1>Request Password Reset:</h1>
         <div className="d-flex justify-content-center align-items-center" style={{height: "70vh"}}>
         <form onSubmit={this.onSubmit}>
-          {/* <div className='form-group'>
-                        <input
-                            className='form-control'
-                            type='email'
-                            placeholder='Email'
-                            name='email'
-                            value={email}
-                            onChange={this.onChange}
-                            required
-                        />
-                    </div> */}
-                    {/* <button className='btn btn-primary' type='submit'>
-                        Reset Password
-                    </button> */}
           <div id="reset-password-card" className="card text-center">
-            {/* <div className="card-header h5 text-white bg-primary">
-              Password Reset
-            </div> */}
             <div className="card-body">
               <p className="card-text py-2">
                 Enter your email address and we'll send you an email with
@@ -81,9 +63,6 @@ class ResetPassword extends Component {
                             required />
                 
               </div>
-              {/* <a href="#" className="btn btn-primary w-100">
-                Reset password
-              </a> */}
                <button id="register-submit-button" type='submit'>
                         Reset Password
                     </button>

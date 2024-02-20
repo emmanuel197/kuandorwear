@@ -1,11 +1,9 @@
 import React, { Component } from "react";
-import arrowUp from "../../static/images/arrow-up.png";
-import arrowDown from "../../static/images/arrow-down.png";
 import CartProduct from "./CartProduct";
 import { connect } from "react-redux";
 import { addCookieItem, addOrRemoveItemHandler, cookieCart } from "../cart";
 import { getCookie } from "../util";
-import { Link } from 'react-router-dom';
+
 class CartPage extends Component {
   constructor(props) {
     super(props);
@@ -24,10 +22,6 @@ class CartPage extends Component {
   
 
   updateCart(action, product_id) {
-    
-    console.log(this.props.isAuthenticated);
-    // this.setState((prevState) => return {...prevState, isAuthenticated: this.props.isAuthenticated})
-    console.log(product_id);
     if (this.props.isAuthenticated) {
       addOrRemoveItemHandler.call(this, action, product_id);
     } else {
@@ -66,7 +60,14 @@ class CartPage extends Component {
           total_cost: data.total_cost,
           item_list: data.items,
         });
-      }).catch((errorData) => console.log(errorData))
+      }).catch((errorData) => {
+        this.setState({
+          item_list: [],
+          total_cost: 0,
+          total_items: 0
+
+        })
+      })
        } else {
          console.log('cookieCart')
          const {total_items, total_cost, items} = await cookieCart.call(this)
