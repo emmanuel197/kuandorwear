@@ -31,3 +31,4 @@ store/static/frontend/main.js
 accounts/__pycache__
 accounts/migrations
 kuandohvenv/
+.env
