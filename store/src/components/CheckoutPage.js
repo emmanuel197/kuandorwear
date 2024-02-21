@@ -149,8 +149,6 @@ class CheckoutPage extends Component {
           console.log("redirect");
           document.cookie = "cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
           // window.location.replace(data.redirect)
-          await this.props.updatedToggler()
-          await this.props.cartUpdatedToggler()
           this.context.setAlertMessage('You have successfully completed your purchase! Check your  email for a confirmation of your order');
           
           this.props.history.push(data.redirect);
