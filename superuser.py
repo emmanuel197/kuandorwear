@@ -3,9 +3,12 @@ import os
 def superuser(event, context):
     email = os.getenv('SUPERUSER_EMAIL')
     password = os.getenv('SUPERUSER_PASSWORD')
+    username = os.getenv('SUPERUSER_USERNAME')
+    first_name = os.getenv('SUPERUSER_FIRSTNAME')
+    last_name = os.getenv('SUPERUSER_LASTNAME')
     
     if email and password:
-        call_command('createsuperuser', interactive=False, email=email, password=password)
+        call_command('createsuperuser', interactive=False, email=email, username=username, first_name=first_name, last_name=last_name, password=password)
         return {
             'statusCode': 200,
             'body': 'Superuser created successfully'
