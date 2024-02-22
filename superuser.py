@@ -1,6 +1,6 @@
 from django.core.management import call_command
 import os
-def superuser(event, context):
+def superuser():
     email = os.getenv('SUPERUSER_EMAIL')
     password = os.getenv('SUPERUSER_PASSWORD')
     username = os.getenv('SUPERUSER_USERNAME')
