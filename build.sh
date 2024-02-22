@@ -10,5 +10,5 @@ python3.9 manage.py migrate --noinput
 
 # echo "Create superuser"
 # python3.9 manage.py collectstatic --noinput --clear
-python3.9 manage.py createsuperuser python manage.py createsuperuser --email eamokuandoh@gmail.com --username kuandor --first_name Emmanuel --last_name Amokuandoh  
+python3.9 manage.py createsuperuser python manage.py createsuperuser --email eamokuandoh@gmail.com --username kuandor --first_name Emmanuel --last_name Amokuandoh --noinput 
 
