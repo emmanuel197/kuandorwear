@@ -14,8 +14,7 @@
       "src": "/(.*)",
       "dest": "kuandorwear/wsgi.py"
     }
-  ],
-
+  ]
 }
 
 
