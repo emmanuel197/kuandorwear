@@ -2,7 +2,7 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-from django.core.management import call_command
+
 
 def main():
     """Run administrative tasks."""
@@ -17,21 +17,6 @@ def main():
         ) from exc
     execute_from_command_line(sys.argv)
     
-def superuser(event, context):
-    email = os.getenv('SUPERUSER_EMAIL')
-    password = os.getenv('SUPERUSER_PASSWORD')
-    
-    if email and password:
-        call_command('createsuperuser', interactive=False, email=email, password=password)
-        return {
-            'statusCode': 200,
-            'body': 'Superuser created successfully'
-        }
-    else:
-        return {
-            'statusCode': 500,
-            'body': 'Error: SUPERUSER_EMAIL or SUPERUSER_PASSWORD environment variables are not set.'
-        }
 
 if __name__ == '__main__':
     main()
