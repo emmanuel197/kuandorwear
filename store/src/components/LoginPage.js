@@ -57,7 +57,7 @@ class LoginPage extends Component {
   continueWithGoogle = async () => {
     
     try {
-        const res = await axios.get(`auth/o/google-oauth2/?redirect_uri=${this.state.react_app_api_url}/google`)
+        const res = await axios.get(`auth/o/google-oauth2/?redirect_uri=$https://kuandorwear.vercel.app/google`)
         console.log(res)
         window.location.replace(res.data.authorization_url);
     } catch (err) {
