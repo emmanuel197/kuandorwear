@@ -1,5 +1,5 @@
 from django.core.management import call_command
-
+import os
 def superuser(event, context):
     email = os.getenv('SUPERUSER_EMAIL')
     password = os.getenv('SUPERUSER_PASSWORD')
@@ -16,4 +16,7 @@ def superuser(event, context):
             'body': 'Error: SUPERUSER_EMAIL or SUPERUSER_PASSWORD environment variables are not set.'
         }
 
-def ""
+def main():
+    superuser()
+if __name__ == '__main__':
+    main()
