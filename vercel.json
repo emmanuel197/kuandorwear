@@ -12,10 +12,7 @@
             "src": "build.sh",
             "use": "@vercel/static-build"
         },
-      "functions": [
-        {
-          "handler": "manage.superuser"
-        }
+      
       ]
     }
   ],
