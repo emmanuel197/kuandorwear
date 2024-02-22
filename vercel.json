@@ -8,10 +8,6 @@
         "runtime": "python3.9"
       }
     },
-    {
-      "src": "build.sh",
-      "use": "@vercel/static-build"
-    }
   ],
   "routes": [
     {
