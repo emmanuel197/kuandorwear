@@ -11,7 +11,7 @@ class LoginPage extends Component {
       password: "",
       errorMessage: "",
       showError: false,
-      react_app_api_url: "http://localhost:8000"
+      react_app_api_url: "https://kuandorwear.vercel.app"
     };
     this.onSubmit = this.onSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
