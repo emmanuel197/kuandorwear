@@ -1,5 +1,10 @@
-from django.core.management import call_command
 import os
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "your_project.settings")
+django.setup()
+
+from django.core.management import call_command
+
 def superuser():
     email = os.getenv('SUPERUSER_EMAIL')
     password = os.getenv('SUPERUSER_PASSWORD')
