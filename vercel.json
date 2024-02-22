@@ -1,14 +1,33 @@
 {
-    "builds": [{
-        "src": "kuandorwear/wsgi.py",
-        "use": "@vercel/python",
-        "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
-    }],
-    "routes": [
+  "builds": [
+    {
+      "src": "kuandorwear/wsgi.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.9"
+      }
+    },
+    {
+      "src": "kuandorwear/manage.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.9"
+      },
+      "functions": [
         {
-            "src": "/(.*)",
-            "dest": "kuandorwear/wsgi.py"
+          "handler": "manage.superuser"
         }
-    ]
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "kuandorwear/wsgi.py"
+    }
+  ]
 }
+
 
