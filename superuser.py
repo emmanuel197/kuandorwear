@@ -3,7 +3,8 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "kuandorwear.settings")
 django.setup()
 
-from django.core.management import call_command
+from accounts.models import User
+
 
 def superuser():
     email = os.getenv('SUPERUSER_EMAIL')
@@ -13,7 +14,9 @@ def superuser():
     last_name = os.getenv('SUPERUSER_LASTNAME')
     
     if email and password:
-        call_command('createsuperuser', interactive=False, email=email, username=username, first_name=first_name, last_name=last_name, password=password)
+        user = User.objects.create_superuser(email=email, username=username, first_name=first_name, last_name=last_name)
+        user.set_password(password)
+        user.save()
         return {
             'statusCode': 200,
             'body': 'Superuser created successfully'
