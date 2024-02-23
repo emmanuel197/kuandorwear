@@ -179,9 +179,11 @@ DJOSER = {
         'user_delete': 'djoser.serializers.UserDeleteSerializer',
     }
 }
-# settings.py
 
-MEDIA_URL = '/media/'
+
+MEDIA_URL= "https://emmanuel197.github.io/kuandorwear_media/"
+
+# MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATIC_URL = "/static/"
@@ -205,4 +207,4 @@ SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
 }
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\
 
-DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
