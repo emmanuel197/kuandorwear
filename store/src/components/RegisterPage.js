@@ -42,7 +42,8 @@ async register() {
         this.state.email,
         this.state.password1,
         this.state.password2,
-        this.state.name
+        this.state.first_name,
+        this.state.last_name
       )
       this.context.setAlertMessage('You have successfully signed up! Check your email to verify your account.');
       console.log(this.props.formErrors)
