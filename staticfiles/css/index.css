@@ -430,12 +430,8 @@ transition: all 0.3s ease;
 #cart-total{
 	color: var(--color2);
 	background-color: var(--background2);
-	border-radius: 50%;
-	font-size: 0.8125rem;
-	width: 25px;
-	height: 25px;
 	vertical-align: 90%;
-}
+} 
 
 .bi-gear-fill, .bi-fire {
 	color: var(--background2);
@@ -631,6 +627,49 @@ transition: all 0.3s ease;
 .row-image{
 	width: 100px;
 }
+
+.placeholder {
+	background-color: #f0f0f0; /* Light grey background */
+	animation: pulse 1.5s infinite alternate; /* Pulsating animation */
+  }
+  
+  @keyframes pulse {
+	0% {
+	  opacity: 0.5; /* Initial opacity */
+	}
+	100% {
+	  opacity: 1; /* Full opacity */
+	}
+  }
+  
+  .placeholder-badge {
+	width: 3.75rem; /* Width of the badge */
+	height: 1.25rem; /* Height of the badge */
+	background-color: #f0f0f0; /* Light grey background */
+	animation: pulse 1.5s infinite alternate; /* Pulsating animation */
+  }
+  
+  .placeholder-text {
+	width: 90%; /* Width of the text */
+	height: 1.5rem; /* Height of the text */
+	margin-bottom: 20px;
+	background-color: #f0f0f0; /* Light grey background */
+	animation: pulse 1.5s infinite alternate; /* Pulsating animation */
+  }
+  
+  #placeholder-btn-1 {
+	width: 100%; /* Width of the button */
+	height: 38px; /* Height of the button */
+	background-color: #f0f0f0; /* Light grey background */
+	animation: pulse 1.5s infinite alternate; /* Pulsating animation */
+  }
+
+  #placeholder-btn-2 {
+	width: 100%; /* Width of the button */
+	height: 38px; /* Height of the button */
+	background-color: #f0f0f0; /* Light grey background */
+	animation: pulse 1.5s infinite alternate; /* Pulsating animation */
+  }
 
 .form-field{
 	width: 15.625rem;
