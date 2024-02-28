@@ -7,6 +7,7 @@
 	--color2: #f8f2f2;
 	--fontfamily1: "Lato", sans-serif;
 	--fontfamily2: "Poppins", serif;
+	--size: 5;
 }
 
 
@@ -670,6 +671,58 @@ transition: all 0.3s ease;
 	background-color: #f0f0f0; /* Light grey background */
 	animation: pulse 1.5s infinite alternate; /* Pulsating animation */
   }
+
+  #loader-wrapper {
+	display: grid;
+  	place-items: center;
+  }
+	@property --nose {
+		syntax: '<percentage>';
+		initial-value: 0%;
+		inherits: false;
+	}
+	@property --tail {
+		syntax: '<percentage>';
+		initial-value: 0%;
+		inherits: false;
+	}
+	.loader {
+		height: calc(var(--size) * 1vmin);
+		width: calc(var(--size) * 1vmin);
+		border-radius: 50%;
+		mask: conic-gradient(
+		from 45deg,
+		transparent 0 var(--tail),
+		#000 0 var(--nose),
+		transparent 0 var(--nose)
+		);
+		border-style: solid;
+		border-width: 1vmin;
+		border-color: var(--background2);
+		animation: load 2.5s both infinite ease-in-out, spin 3.25s infinite linear;
+	}
+	
+	@keyframes spin {
+		to {
+		transform: rotate(360deg);
+		}
+	}
+	
+	@keyframes load {
+		0% {
+		--tail: 0%;
+		--nose: 0%;
+		}
+		40%,
+		60% {
+		--nose: 100%;
+		--tail: 0%;
+		}
+		100% {
+		--nose: 100%;
+		--tail: 100%;
+		}
+	}
 
 .form-field{
 	width: 15.625rem;
