@@ -24,24 +24,38 @@ class ProductAPIView(generics.ListAPIView):
         Prefetch('sizes', queryset=ProductSize.objects.all())
     )
     serializer_class = ProductSerializer
-
+# class ProductListView(generics.ListAPIView):
+#         queryset = Product.objects.all()
+#         serializer_class = ProductSerializer
 
 class FilteredProductListView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = ProductFilter
-        
 class ProductSearchView(APIView):
     def get(self, request, *args, **kwargs):
         query = self.request.GET.get('q')
         if query:
             products = Product.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))
+            print(f'products {products}')
             serializer = ProductSerializer(products, many=True)
+            print(f'serializer product {serializer.data}')
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response([], status=status.HTTP_200_OK)
 
-
+# class ProductDetailView(generics.RetrieveAPIView):
+#     serializer_class = ProductSerializer
+#     def get(self, request, *args, **kwargs):
+#         # print(request.headers)
+#         id = self.kwargs.get('id')
+#         try:
+#             product = Product.objects.get(id=id)
+#             serializer = ProductSerializer(product)
+#             return Response(serializer.data)
+#         except Product.DoesNotExist:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+        
 def get_item_list(items):
     
     return [
@@ -63,6 +77,7 @@ class CreateOrUpdateOrderView(APIView):
         data = request.data
         product_id = data.get('product_id')
         product = get_object_or_404(Product, id=product_id)
+        # print(request.user)
         customer, created = Customer.objects.get_or_create(user=request.user, first_name=request.user.first_name, last_name=request.user.last_name, email=request.user.email)
 
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
@@ -225,6 +240,9 @@ class UnAuthProcessOrderView(APIView):
         first_name = user_info['first_name']
         last_name = user_info['last_name']
         email = user_info['email']
+        # print(f'name: {first_name} {last_name}')
+        # print(f'email: {email}')
+        print(f'total: {total}')
 
 
         customer, created = Customer.objects.get_or_create(first_name=first_name, last_name=last_name, email=email)
