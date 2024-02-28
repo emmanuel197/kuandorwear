@@ -15,6 +15,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from django.utils import timezone
 from django.db.models import Prefetch
+from django.core.exceptions import ObjectDoesNotExist
 
 
 # Create your views here.
@@ -91,7 +92,7 @@ class CreateOrUpdateOrderView(APIView):
         if not created:
             order_item.quantity += 1
             order_item.save()
-
+        
         updated_order_item = OrderItem.objects.select_related('product').get(id=order_item.id)
         item_data = {
             'id': updated_order_item.product.id,
@@ -147,8 +148,11 @@ class updateCartView(APIView):
         customer, created = Customer.objects.get_or_create(user=request.user, first_name=request.user.first_name, last_name=request.user.last_name, email=request.user.email)
         order, order_created  = Order.objects.get_or_create(customer=customer, complete=False)
         order_item, order_item_created = OrderItem.objects.get_or_create(order=order, product=product)
+        print(f'total_items_before: {order.get_cart_items}')
+        print(f'total_cost_before: {order.get_cart_total}')
 
         if 'add' == action:
+
             order_item.quantity += 1
             order_item.save()
         elif 'remove' == action:
@@ -157,20 +161,25 @@ class updateCartView(APIView):
                 order_item.delete()
             else:
                 order_item.save()
-
-        updated_order_item = OrderItem.objects.select_related('product').get(id=order_item.id)
-        item_data = {
-            'id': updated_order_item.product.id,
-            'product': updated_order_item.product.name,
-            'price': updated_order_item.product.price,
-            'image': updated_order_item.product.image.url,
-            'quantity': updated_order_item.quantity,
-            'total': updated_order_item.get_total,
-            'total_completed_orders': updated_order_item.product.get_completed,
-        }
-        return Response({'message': 'Cart updated successfully', 'total_items': order.get_cart_items,
+        try:
+            updated_order_item = OrderItem.objects.select_related('product').get(id=order_item.id)
+            item_data = {
+                'id': updated_order_item.product.id,
+                'product': updated_order_item.product.name,
+                'price': updated_order_item.product.price,
+                'image': updated_order_item.product.image.url,
+                'quantity': updated_order_item.quantity,
+                'total': updated_order_item.get_total,
+                'total_completed_orders': updated_order_item.product.get_completed,
+            }
+            print(f'updated_item: {item_data}')
+            return Response({'message': 'Cart updated successfully', 'total_items': order.get_cart_items,
                 'total_cost': order.get_cart_total,
-                'updated_item': item_data }, status=status.HTTP_200_OK)
+                'updated_item': item_data}, status=status.HTTP_200_OK)
+        except OrderItem.DoesNotExist:
+            return Response({'item_id': product_id, 'total_items': order.get_cart_items,
+                'total_cost': order.get_cart_total, 'error': 'Item does not exist'}, status=status.HTTP_200_OK)
+        
 
 def send_purchase_confirmation_email(user_email, first_name, order, total):
     shipping_address = None
