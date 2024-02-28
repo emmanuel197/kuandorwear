@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from .serializers import ProductSerializer
-from .models import Product, Order, OrderItem, Customer, ShippingAddress
+from .models import Product, Order, OrderItem, Customer, ShippingAddress, ProductImage, ProductSize
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics, status
@@ -14,43 +14,48 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.utils import timezone
+from django.db.models import Prefetch
 
 
 # Create your views here.
+class ProductAPIView(generics.ListAPIView):
+    queryset = Product.objects.prefetch_related(
+        Prefetch('images', queryset=ProductImage.objects.all()),
+        Prefetch('sizes', queryset=ProductSize.objects.all())
+    )
+    serializer_class = ProductSerializer
 
-class ProductListView(generics.ListAPIView):
-        queryset = Product.objects.all()
-        serializer_class = ProductSerializer
 
 class FilteredProductListView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = ProductFilter
+        
 class ProductSearchView(APIView):
     def get(self, request, *args, **kwargs):
         query = self.request.GET.get('q')
         if query:
             products = Product.objects.filter(Q(name__icontains=query) | Q(description__icontains=query))
-            print(f'products {products}')
             serializer = ProductSerializer(products, many=True)
-            print(f'serializer product {serializer.data}')
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response([], status=status.HTTP_200_OK)
 
-class ProductDetailView(generics.RetrieveAPIView):
-    serializer_class = ProductSerializer
-    def get(self, request, *args, **kwargs):
-        # print(request.headers)
-        id = self.kwargs.get('id')
-        try:
-            product = Product.objects.get(id=id)
-            serializer = ProductSerializer(product)
-            return Response(serializer.data)
-        except Product.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        
 
+def get_item_list(items):
+    
+    return [
+        {
+            'id': item.product.id,
+            'product': item.product.name,
+            'price': item.product.price,
+            'image': item.product.image.url,
+            'quantity': item.quantity,
+            'total': item.get_total,
+            'total_completed_orders': item.product.get_completed,
+        }
+        for item in items
+    ]
 class CreateOrUpdateOrderView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -58,8 +63,7 @@ class CreateOrUpdateOrderView(APIView):
         data = request.data
         product_id = data.get('product_id')
         product = get_object_or_404(Product, id=product_id)
-        # print(request.user)
-        customer, created = Customer.objects.get_or_create(user=request.user)
+        customer, created = Customer.objects.get_or_create(user=request.user, first_name=request.user.first_name, last_name=request.user.last_name, email=request.user.email)
 
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
         
@@ -73,16 +77,23 @@ class CreateOrUpdateOrderView(APIView):
             order_item.quantity += 1
             order_item.save()
 
-        return Response({'message': 'Order created successfully'}, status=status.HTTP_200_OK)
+        updated_order_item = OrderItem.objects.select_related('product').get(id=order_item.id)
+        item_data = {
+            'id': updated_order_item.product.id,
+            'product': updated_order_item.product.name,
+            'price': updated_order_item.product.price,
+            'image': updated_order_item.product.image.url,
+            'quantity': updated_order_item.quantity,
+            'total': updated_order_item.get_total,
+            'total_completed_orders': updated_order_item.product.get_completed,
+        }
+
+        return Response({'message': 'Order created successfully', 'total_items': order.get_cart_items,
+                'total_cost': order.get_cart_total,
+                'updated_item': item_data}, status=status.HTTP_200_OK)
 
     
 
-class AuthCheck(APIView):
-    def get(self, request):
-        if request.user.is_authenticated:
-            return Response({'logged_in': request.user.is_authenticated}, status=status.HTTP_200_OK)
-        else:
-            return Response({'logged_out': request.user.is_authenticated}, status=status.HTTP_200_OK)
 
 
 class CartDataView(APIView):
@@ -91,35 +102,21 @@ class CartDataView(APIView):
 
    
     def get(self, request, *args, **kwargs):
-        customer = Customer.objects.filter(user=self.request.user).first()
+        customer, created = Customer.objects.get_or_create(user=request.user, first_name=request.user.first_name, last_name=request.user.last_name, email=request.user.email)
         order, order_created = Order.objects.get_or_create(customer=customer, complete=False)
         items = order.orderitem_set.all()
         
         if len(items) == 0:
             return Response({"QUERY ERROR: No Such Order Item Exists"}, status=status.HTTP_404_NOT_FOUND)
-        item_list = []
-        for item in items:
-            item_list.append({
-                'id': item.product.id,
-                'product': item.product.name,
-                'price': item.product.price,
-                'image': item.product.image.url,
-                'quantity': item.quantity,
-                'total': item.get_total,
-                'total_completed_orders': item.product.get_completed
-            })
+        item_list = get_item_list(items)
 
-            cart_data = {
+        cart_data = {
                 'total_items': order.get_cart_items,
                 'total_cost': order.get_cart_total,
                 'items': item_list,
                 'shipping': order.shipping,
                 'order_status': order.complete
             }
-
-            
-           
-            
 
         return Response(cart_data)
 
@@ -132,7 +129,7 @@ class updateCartView(APIView):
         product_id = data.get('product_id')
         action = data.get('action')
         product = Product.objects.get(id=product_id)
-        customer = Customer.objects.filter(user=request.user).first()
+        customer, created = Customer.objects.get_or_create(user=request.user, first_name=request.user.first_name, last_name=request.user.last_name, email=request.user.email)
         order, order_created  = Order.objects.get_or_create(customer=customer, complete=False)
         order_item, order_item_created = OrderItem.objects.get_or_create(order=order, product=product)
 
@@ -145,8 +142,20 @@ class updateCartView(APIView):
                 order_item.delete()
             else:
                 order_item.save()
-        print(f'quantity {order_item.quantity}')
-        return Response({'message': 'Cart updated successfully'}, status=status.HTTP_200_OK)
+
+        updated_order_item = OrderItem.objects.select_related('product').get(id=order_item.id)
+        item_data = {
+            'id': updated_order_item.product.id,
+            'product': updated_order_item.product.name,
+            'price': updated_order_item.product.price,
+            'image': updated_order_item.product.image.url,
+            'quantity': updated_order_item.quantity,
+            'total': updated_order_item.get_total,
+            'total_completed_orders': updated_order_item.product.get_completed,
+        }
+        return Response({'message': 'Cart updated successfully', 'total_items': order.get_cart_items,
+                'total_cost': order.get_cart_total,
+                'updated_item': item_data }, status=status.HTTP_200_OK)
 
 def send_purchase_confirmation_email(user_email, first_name, order, total):
     shipping_address = None
@@ -216,9 +225,6 @@ class UnAuthProcessOrderView(APIView):
         first_name = user_info['first_name']
         last_name = user_info['last_name']
         email = user_info['email']
-        # print(f'name: {first_name} {last_name}')
-        # print(f'email: {email}')
-        print(f'total: {total}')
 
 
         customer, created = Customer.objects.get_or_create(first_name=first_name, last_name=last_name, email=email)
