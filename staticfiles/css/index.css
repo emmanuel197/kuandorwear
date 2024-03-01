@@ -672,9 +672,9 @@ transition: all 0.3s ease;
 	animation: pulse 1.5s infinite alternate; /* Pulsating animation */
   }
 
-  #loader-wrapper {
-	display: grid;
-  	place-items: center;
+.loader-wrapper {
+	display: grid !important;
+  	place-items: center !important;
   }
 	@property --nose {
 		syntax: '<percentage>';
