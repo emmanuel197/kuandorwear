@@ -686,7 +686,7 @@ transition: all 0.3s ease;
 		initial-value: 0%;
 		inherits: false;
 	}
-	.loader {
+	.loader { 
 		height: calc(var(--size) * 1vmin);
 		width: calc(var(--size) * 1vmin);
 		border-radius: 50%;
@@ -698,7 +698,7 @@ transition: all 0.3s ease;
 		);
 		border-style: solid;
 		border-width: 1vmin;
-		border-color: var(--background2);
+		border-color: var(--background2) transparent var(--background2) transparent ;
 		animation: load 2.5s both infinite ease-in-out, spin 3.25s infinite linear;
 	}
 	
@@ -707,7 +707,7 @@ transition: all 0.3s ease;
 		transform: rotate(360deg);
 		}
 	}
-	
+	 
 	@keyframes load {
 		0% {
 		--tail: 0%;
@@ -722,7 +722,7 @@ transition: all 0.3s ease;
 		--nose: 100%;
 		--tail: 100%;
 		}
-	}
+	} 
 
 .form-field{
 	width: 15.625rem;
