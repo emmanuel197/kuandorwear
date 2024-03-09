@@ -26,16 +26,19 @@ class ProductSerializer(serializers.ModelSerializer):
     sizes = ProductSizeSerializer(many=True, read_only=True)
     brand = serializers.SerializerMethodField()
     total_completed_orders = serializers.SerializerMethodField()
-
+    in_stock = serializers.SerializerMethodField()
     class Meta:
         model = Product
-        fields = ('id', 'name', 'price', 'discount_price', 'brand', 'image', 'description', 'images', 'sizes', 'total_completed_orders')
+        fields = ('id', 'name', 'price', 'discount_price', 'brand', 'in_stock', 'image', 'description', 'images', 'sizes', 'total_completed_orders')
 
     def get_brand(self, obj):
         return obj.brand.name if obj.brand else None  
     
     def get_total_completed_orders(self, obj):  # Add this method
         return obj.get_completed
+    
+    def get_in_stock(self, obj):
+        return obj.is_in_stock
 # class SizeSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Size
