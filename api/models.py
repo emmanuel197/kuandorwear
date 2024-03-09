@@ -12,6 +12,8 @@ class Customer(models.Model):
     last_name = models.CharField(max_length=200, null=True, blank=True)
     email = models.EmailField(max_length=200, null=True, blank=True)
 
+    def __str__(self):
+        return f'{self.first_name}, {self.last_name}'
     
 class Brand(models.Model):
     name = models.CharField(max_length=200)
@@ -29,13 +31,20 @@ class Product(models.Model):
     digital = models.BooleanField(default=False, null=True, blank=True)
     image = models.ImageField(upload_to='images/' ,null=True, blank=True)
     description = models.TextField(max_length=1000, null=True, blank=True)
-
+    stock_quantity = models.IntegerField(default=0)
     def __str__(self):
         return self.name
     
     @property
     def get_completed(self):
         return self.orderitem_set.filter(order__complete=True).count()
+    
+    @property
+    def  is_in_stock(self):
+        in_stock = False
+        if self.stock_quantity > 0:
+            in_stock = True
+        return in_stock
 class Size(models.Model):
     name = models.CharField(max_length=50)
 
@@ -74,7 +83,15 @@ class Order(models.Model):
     date_ordered = models.DateTimeField(auto_now_add=True)
     complete = models.BooleanField(default=False)
     date_completed = models.DateTimeField(null=True, blank=True)
-
+    FULFILLMENT_STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('PROCESSING', 'Processing'),
+        ('SHIPPED', 'Shipped'),
+        ('DELIVERED', 'Delivered'),
+        ('CANCELLED', 'Cancelled'),
+    ]
+    fulfillment_status = models.CharField(max_length=20, choices=FULFILLMENT_STATUS_CHOICES, default='PENDING')
+    
     def __str__(self):
         return self.transaction_id
     
