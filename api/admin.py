@@ -6,7 +6,7 @@ from accounts.models import User
 # Define inline admin classes for related models
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
-    readonly_fields = ('get_total',)
+    readonly_fields = ('product', 'quantity', 'get_total',)
     extra = 0
 
     def get_queryset(self, request):
