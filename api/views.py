@@ -180,7 +180,6 @@ class ProcessOrderView(APIView):
     permission_classes = [ IsAuthenticated ]
     authentication_classes = [ JWTAuthentication ]
     def post(self, request, format=None):         
-        user_info = request.data.get('user_info')
         shipping_info = request.data.get('shipping_info')
         total = request.data.get('total')
         
