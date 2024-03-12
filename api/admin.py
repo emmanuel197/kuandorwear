@@ -9,8 +9,14 @@ class OrderItemInline(admin.TabularInline):
     readonly_fields = ('get_total',)
     extra = 0
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.select_related('product', 'order')
+
 class ShippingAddressInline(admin.StackedInline):
     model = ShippingAddress
+    fields = ('address', 'city', 'state', 'zipcode', 'country')
+    readonly_fields = ('address', 'city', 'state', 'zipcode', 'country')
     extra = 0
 
 # Define admin classes for main models
@@ -22,21 +28,24 @@ class CustomerAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('transaction_id', 'customer_name', 'date_ordered', 'complete', 'date_completed', 'get_cart_total', 'get_cart_items')
+    list_display = ('transaction_id', 'customer', 'date_ordered', 'complete', 'date_completed')
     list_filter = ('complete', 'date_ordered')
     search_fields = ('transaction_id',)
     inlines = [OrderItemInline, ShippingAddressInline]
 
-    def customer_name(self, obj):
-        return obj.customer.first_name + ' ' + obj.customer.last_name if obj.customer else ''
-    customer_name.short_description = 'Customer'
+    list_per_page = 10
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('customer').prefetch_related('orderitem_set')
+    
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ('order', 'product', 'quantity', 'date_added', 'get_total')
     list_filter = ('date_added',)
     search_fields = ('order__transaction_id', 'product__name')
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('order', 'product')
 
 @admin.register(ShippingAddress)
 class ShippingAddressAdmin(admin.ModelAdmin):
