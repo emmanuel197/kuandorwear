@@ -33,7 +33,8 @@ To get started with Kuandorwear, follow these steps:
     cd ../backend
     pip install -r requirements.txt
 3. Set up environment variables:
-   - Create a `.env` file in the frontend directory and configure the PayPal client ID.
+   - Create a `.env` file in the backend directory and configure the DATABASE_URL, SECRET_KEY, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, SOCIAL_AUTH_GOOGLE_OAUTH2_KEY,    
+     SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
    - Configure Django settings to connect to your PostgreSQL database.
   
 4. Run the frontend and backend servers:
