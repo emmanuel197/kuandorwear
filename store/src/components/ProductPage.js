@@ -32,7 +32,13 @@ class ProductPage extends Component {
 
   updateCart(action, product_id) {
     if (this.props.isAuthenticated) {
-      this.props.addOrRemoveItemHandler(action, product_id);
+      // /api/update-cart only updates an item already in the cart. If the
+      // item isn't in the cart yet, an "add" must create it first.
+      if (action === "add" && !(this.props.itemQuantity > 0)) {
+        this.props.handleOrderedItem(product_id);
+      } else {
+        this.props.addOrRemoveItemHandler(action, product_id);
+      }
     } else {
       this.props.addOrRemoveCookieItem(action, product_id);
     }
@@ -206,7 +212,16 @@ class ProductPage extends Component {
                     </div>
                   </div>
                   <div className="row gap-1" style={{paddingLeft: "12px", paddingRight: "12px"}}>
-                    <a id="buy-now" href="#" className="btn shadow-0 col-lg-4">
+                    <a
+                      id="buy-now"
+                      href="#"
+                      className="btn shadow-0 col-lg-4"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        this.addToCart("add", this.props.match.params.id);
+                        this.props.history.push("/checkout");
+                      }}
+                    >
                       {" "}
                       Buy now{" "}
                     </a>

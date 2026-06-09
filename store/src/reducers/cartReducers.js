@@ -6,8 +6,9 @@ import {
     COOKIE_CART_DATA_FAIL,
     UPDATE_ITEM_SUCCESS,
     UPDATE_ITEM_FAIL,
-    ORDERED_ITEM_FAIL
-    
+    ORDERED_ITEM_FAIL,
+    CLEAR_CART
+
 } from '../actions/types';
 import { createSelector } from 'reselect';
 
@@ -104,6 +105,17 @@ export default function(state = cartDataFromLocalStorage || initialState, action
       };
       localStorage.setItem('cartData', JSON.stringify(failedOrderCartData));
       return failedOrderCartData;
+    case CLEAR_CART:
+      const clearedCartData = {
+        loading: false,
+        totalItems: 0,
+        totalCost: 0,
+        itemList: [],
+        shipping: false,
+        error: null
+      };
+      localStorage.setItem('cartData', JSON.stringify(clearedCartData));
+      return clearedCartData;
     default:
       return state;
   }

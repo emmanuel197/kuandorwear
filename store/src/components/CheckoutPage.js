@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import CheckoutProduct from "./CheckoutProduct";
 import { connect } from "react-redux";
 import { getCookie } from "../util";
+import { clearCart } from "../actions/cartActions";
 import AlertContext from './AlertContext';
 class CheckoutPage extends Component {
   constructor(props) {
@@ -55,11 +56,11 @@ class CheckoutPage extends Component {
       })
       .then((data) => {
         if (data.order_status) {
-          // Redirect to the registration page
+          // Reset the cart in Redux (badge updates immediately) and navigate
+          // via the router so the success toast survives (no full reload).
+          this.props.clearCart();
           this.context.setAlertMessage('You have successfully completed your purchase! Check your  email for a confirmation of your order details');
-          localStorage.removeItem('cartData');
-          
-          window.location.href = data.redirect;
+          this.props.history.push(data.redirect);
         } else {
           window.location.replace("/");
         }
@@ -87,11 +88,11 @@ class CheckoutPage extends Component {
       })
       .then(async (data) => {
         if (data.order_status) {
-          // Redirect to the registration page
-          document.cookie = "cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          // Reset the cart in Redux (clears cookie + badge) and navigate via
+          // the router so the success toast survives (no full reload).
+          this.props.clearCart();
           this.context.setAlertMessage('You have successfully completed your purchase! Check your  email for a confirmation of your order');
-          
-          window.location.href = data.redirect;
+          this.props.history.push(data.redirect);
         } else {
 
           this.context.setAlertMessage('Your purchase was not completed successfully');
@@ -335,4 +336,4 @@ const mapStateToProps = (state) => ({
   
 });
 
-export default connect(mapStateToProps, null)(CheckoutPage);
+export default connect(mapStateToProps, { clearCart })(CheckoutPage);

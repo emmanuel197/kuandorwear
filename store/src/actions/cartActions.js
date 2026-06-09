@@ -6,10 +6,20 @@ import {
   COOKIE_CART_DATA_FAIL,
   ORDERED_ITEM_FAIL,
   UPDATE_ITEM_SUCCESS,
-  UPDATE_ITEM_FAIL
+  UPDATE_ITEM_FAIL,
+  CLEAR_CART
 } from "./types";
 import axios from "axios";
 import { getCookie } from "../util";
+
+// Reset the cart locally (after a completed order). Clears the cart cookie,
+// the cached cartData, and resets the Redux cart state so the navbar badge
+// updates immediately without a page reload.
+export const clearCart = () => (dispatch) => {
+  document.cookie = "cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  localStorage.removeItem("cartData");
+  dispatch({ type: CLEAR_CART });
+};
 
 export const fetchCartData = () => async (dispatch) => {
   try {

@@ -31,6 +31,7 @@ export const COOKIE_CART_DATA_FAIL = "COOKIE_CART_DATA_FAIL";
 //cart data manipulation types
 export const ORDERED_ITEM_SUCCESS = "ORDERED_ITEM_SUCCESS"
 export const ORDERED_ITEM_FAIL = "ORDERED_ITEM_FAIL"
+export const CLEAR_CART = "CLEAR_CART"
 
 export const UPDATE_ITEM_SUCCESS = "UPDATE_ITEM_SUCCESS"
 export const UPDATE_ITEM_FAIL = "UPDATE_ITEM_FAIL"
