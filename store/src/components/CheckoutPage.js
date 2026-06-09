@@ -59,7 +59,7 @@ class CheckoutPage extends Component {
           this.context.setAlertMessage('You have successfully completed your purchase! Check your  email for a confirmation of your order details');
           localStorage.removeItem('cartData');
           
-          this.props.history.push(data.redirect);
+          window.location.href = data.redirect;
         } else {
           window.location.replace("/");
         }
@@ -91,7 +91,7 @@ class CheckoutPage extends Component {
           document.cookie = "cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
           this.context.setAlertMessage('You have successfully completed your purchase! Check your  email for a confirmation of your order');
           
-          this.props.history.push(data.redirect);
+          window.location.href = data.redirect;
         } else {
 
           this.context.setAlertMessage('Your purchase was not completed successfully');

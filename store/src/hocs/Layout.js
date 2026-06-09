@@ -13,10 +13,9 @@ class Layout extends Component {
         this.props.load_user();
         this.props.checkAuthenticated();
 
-        const productsData = JSON.parse(localStorage.getItem('productsData'))
-        if (productsData == undefined) { 
-            this.props.fetchProductsData()
-        }       
+        // Always fetch fresh products so admin changes show without a manual
+        // cache/localStorage clear. The fetch overwrites the cached copy.
+        this.props.fetchProductsData()
     }
     render() {
         const { children } = this.props;

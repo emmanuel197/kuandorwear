@@ -14,8 +14,9 @@ env/
 # Django
 db.sqlite3
 db.sqlite3-journal
-/staticfiles/
 media/
+# NOTE: staticfiles/ IS committed — Vercel serves it via WhiteNoise (no
+# collectstatic runs on deploy), so the built bundle must be in the repo.
 
 # Node / frontend
 node_modules/
