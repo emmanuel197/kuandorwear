@@ -6,9 +6,16 @@ from .models import Product, Order, ProductImage, Size, ProductSize, Brand
 #         fields = ('id' ,'name', 'price', 'image', 'description')
 
 class ProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductImage
-        fields = ('color', 'image', 'default')
+        fields = ('id', 'color', 'image', 'default')
+
+    def get_image(self, obj):
+        # Variant images are shipped as static assets (static/images/variants/),
+        # so serve them from STATIC_URL rather than MEDIA_URL.
+        return f"/static/{obj.image.name}" if obj.image else None
 
 class SizeSerializer(serializers.ModelSerializer):
     class Meta:
