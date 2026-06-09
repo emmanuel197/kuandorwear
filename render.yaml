@@ -1,0 +1,44 @@
+databases:
+  - name: kuandorwear-db
+    plan: free
+    databaseName: kuandorwear
+    user: kuandorwear
+
+services:
+  - type: web
+    name: kuandorwear
+    runtime: python
+    plan: free
+    buildCommand: "./render_build.sh"
+    startCommand: "gunicorn kuandorwear.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kuandorwear-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: "3.9.18"
+      - key: WEB_CONCURRENCY
+        value: "4"
+      # Set these in the Render dashboard (marked sync:false so they are not
+      # committed to git):
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
+        sync: false
+      - key: SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
+        sync: false
+      - key: SUPERUSER_EMAIL
+        sync: false
+      - key: SUPERUSER_PASSWORD
+        sync: false
+      - key: SUPERUSER_USERNAME
+        sync: false
+      - key: SUPERUSER_FIRSTNAME
+        sync: false
+      - key: SUPERUSER_LASTNAME
+        sync: false

@@ -14,6 +14,11 @@ def superuser():
     last_name = os.getenv('SUPERUSER_LASTNAME')
     
     if email and password:
+        if User.objects.filter(email=email).exists():
+            return {
+                'statusCode': 200,
+                'body': 'Superuser already exists'
+            }
         user = User.objects.create_superuser(email=email, username=username, first_name=first_name, last_name=last_name)
         user.set_password(password)
         user.save()
